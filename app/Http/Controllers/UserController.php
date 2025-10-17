@@ -76,7 +76,6 @@ class UserController extends Controller
             'unidad_academica_id' => 'required|exists:unidades_academicas,id',
             'roles' => 'required|array|min:1',
             'roles.*' => 'exists:roles,id',
-            'activo' => 'boolean',
         ], [
             'name.required' => 'El nombre es obligatorio',
             'apellido.required' => 'El apellido es obligatorio',
@@ -90,25 +89,30 @@ class UserController extends Controller
             'roles.required' => 'Debe asignar al menos un rol',
         ]);
 
-        // Crear usuario
-        $usuario = User::create([
-            'name' => $validated['name'],
-            'apellido' => $validated['apellido'],
-            'email' => $validated['email'],
-            'documento' => $validated['documento'] ?? null,
-            'telefono' => $validated['telefono'] ?? null,
-            'password' => Hash::make($validated['password']),
-            'dependencia_id' => $validated['dependencia_id'],
-            'unidad_academica_id' => $validated['unidad_academica_id'],
-            'activo' => $request->has('activo') ? true : false,
-        ]);
+        try {
+            $usuario = User::create([
+                'name' => $validated['name'],
+                'apellido' => $validated['apellido'],
+                'email' => $validated['email'],
+                'documento' => $validated['documento'] ?? null,
+                'telefono' => $validated['telefono'] ?? null,
+                'password' => Hash::make($validated['password']),
+                'dependencia_id' => $validated['dependencia_id'],
+                'unidad_academica_id' => $validated['unidad_academica_id'],
+                'activo' => $request->has('activo') ? true : false,
+            ]);
 
-        // Asignar roles
-        $usuario->roles()->sync($validated['roles']);
+            // Asignar roles
+            $usuario->roles()->sync($validated['roles']);
 
-        return redirect()
-            ->route('usuarios.index')
-            ->with('success', 'Usuario creado exitosamente');
+            return redirect()
+                ->route('usuarios.index')
+                ->with('success', 'Usuario creado exitosamente');
+        } catch (\Exception $e) {
+            return back()
+                ->withInput()
+                ->with('error', 'Error al crear el usuario: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -150,7 +154,6 @@ class UserController extends Controller
             'unidad_academica_id' => 'required|exists:unidades_academicas,id',
             'roles' => 'required|array|min:1',
             'roles.*' => 'exists:roles,id',
-            'activo' => 'boolean',
         ], [
             'name.required' => 'El nombre es obligatorio',
             'apellido.required' => 'El apellido es obligatorio',
@@ -163,31 +166,37 @@ class UserController extends Controller
             'roles.required' => 'Debe asignar al menos un rol',
         ]);
 
-        // Actualizar datos
-        $usuario->update([
-            'name' => $validated['name'],
-            'apellido' => $validated['apellido'],
-            'email' => $validated['email'],
-            'documento' => $validated['documento'] ?? null,
-            'telefono' => $validated['telefono'] ?? null,
-            'dependencia_id' => $validated['dependencia_id'],
-            'unidad_academica_id' => $validated['unidad_academica_id'],
-            'activo' => $request->has('activo') ? true : false,
-        ]);
+        try {
+            // Actualizar datos básicos
+            $dataToUpdate = [
+                'name' => $validated['name'],
+                'apellido' => $validated['apellido'],
+                'email' => $validated['email'],
+                'documento' => $validated['documento'] ?? null,
+                'telefono' => $validated['telefono'] ?? null,
+                'dependencia_id' => $validated['dependencia_id'],
+                'unidad_academica_id' => $validated['unidad_academica_id'],
+                'activo' => $request->has('activo') ? true : false,
+            ];
 
-        // Actualizar contraseña solo si se proporciona
-        if (!empty($validated['password'])) {
-            $usuario->update([
-                'password' => Hash::make($validated['password'])
-            ]);
+            // Actualizar contraseña solo si se proporciona
+            if (!empty($validated['password'])) {
+                $dataToUpdate['password'] = Hash::make($validated['password']);
+            }
+
+            $usuario->update($dataToUpdate);
+
+            // Actualizar roles
+            $usuario->roles()->sync($validated['roles']);
+
+            return redirect()
+                ->route('usuarios.index')
+                ->with('success', 'Usuario actualizado exitosamente');
+        } catch (\Exception $e) {
+            return back()
+                ->withInput()
+                ->with('error', 'Error al actualizar el usuario: ' . $e->getMessage());
         }
-
-        // Actualizar roles
-        $usuario->roles()->sync($validated['roles']);
-
-        return redirect()
-            ->route('usuarios.index')
-            ->with('success', 'Usuario actualizado exitosamente');
     }
 
     /**

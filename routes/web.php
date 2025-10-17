@@ -28,6 +28,10 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->midd
 
 // Rutas protegidas - TODAS requieren autenticación
 Route::middleware(['auth'])->group(function () {
+    
+    // Dashboard
+    Route::get('/home', [HomeController::class, 'index'])->name('home');
+    
     // Gestión de Unidades Académicas
     Route::middleware('permission:users.view')->group(function () {
         Route::resource('unidades-academicas', UnidadAcademicaController::class);
@@ -63,10 +67,7 @@ Route::middleware(['auth'])->group(function () {
             ->name('api.dependencias');
     });
 
-    // Dashboard
-    Route::get('/home', [HomeController::class, 'index'])->name('home');
-    
-    // Tickets
+    // ==================== RUTAS DE TICKETS ====================
     Route::prefix('tickets')->name('tickets.')->group(function () {
         
         // Ver mis tickets (todos los usuarios autenticados)
@@ -91,6 +92,15 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{ticket}', [TicketController::class, 'show'])
             ->name('show');
         
+        // Editar ticket
+        Route::get('/{ticket}/editar', [TicketController::class, 'edit'])
+            ->middleware('permission:tickets.edit')
+            ->name('edit');
+        
+        Route::put('/{ticket}', [TicketController::class, 'update'])
+            ->middleware('permission:tickets.edit')
+            ->name('update');
+        
         // Asignar ticket
         Route::post('/{ticket}/asignar', [TicketController::class, 'asignar'])
             ->middleware('permission:tickets.view-all')
@@ -113,5 +123,10 @@ Route::middleware(['auth'])->group(function () {
         // Agregar observación
         Route::post('/{ticket}/observacion', [TicketController::class, 'agregarObservacion'])
             ->name('observacion');
+        
+        // Eliminar ticket
+        Route::delete('/{ticket}', [TicketController::class, 'destroy'])
+            ->middleware('permission:tickets.delete')
+            ->name('destroy');
     });
 });

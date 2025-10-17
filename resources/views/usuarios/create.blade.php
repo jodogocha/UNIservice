@@ -204,12 +204,14 @@
                     <div class="col-md-4">
                         <div class="form-group">
                             <label>Estado</label>
+                            <input type="hidden" name="activo" value="0">
                             <div class="custom-control custom-switch">
                                 <input type="checkbox" 
-                                       class="custom-control-input" 
-                                       id="activo" 
-                                       name="activo" 
-                                       {{ old('activo', true) ? 'checked' : '' }}>
+                                    class="custom-control-input" 
+                                    id="activo" 
+                                    name="activo" 
+                                    value="1"
+                                    {{ old('activo', true) ? 'checked' : '' }}>
                                 <label class="custom-control-label" for="activo">
                                     Usuario Activo
                                 </label>

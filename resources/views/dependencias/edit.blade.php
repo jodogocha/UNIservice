@@ -50,11 +50,13 @@
                     <div class="col-md-3">
                         <div class="form-group">
                             <label>Estado</label>
+                            <input type="hidden" name="activo" value="0">
                             <div class="custom-control custom-switch">
                                 <input type="checkbox" 
                                        class="custom-control-input" 
                                        id="activo" 
                                        name="activo" 
+                                       value="1"
                                        {{ old('activo', $dependencia->activo) ? 'checked' : '' }}>
                                 <label class="custom-control-label" for="activo">
                                     Activo

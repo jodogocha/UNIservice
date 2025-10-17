@@ -3,24 +3,44 @@
 namespace App\Http\Controllers;
 
 use App\Models\Ticket;
-use App\Models\Dependencia;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class TicketController extends Controller
 {
     /**
      * Listar todos los tickets (solo para admin y encargado)
      */
-    public function index()
+    public function index(Request $request)
     {
-        $user = Auth::user();
-        
-        $tickets = Ticket::with(['solicitante', 'dependencia', 'asignadoA'])
-            ->orderBy('created_at', 'desc')
-            ->paginate(15);
+        $query = Ticket::with(['solicitante', 'asignado', 'dependencia', 'unidadAcademica']);
+
+        // Filtro por estado
+        if ($request->has('estado') && $request->estado !== '') {
+            $query->where('estado', $request->estado);
+        }
+
+        // Filtro por prioridad
+        if ($request->has('prioridad') && $request->prioridad !== '') {
+            $query->where('prioridad', $request->prioridad);
+        }
+
+        // Filtro por tipo de servicio
+        if ($request->has('tipo_servicio') && $request->tipo_servicio !== '') {
+            $query->where('tipo_servicio', $request->tipo_servicio);
+        }
+
+        // Búsqueda por código o asunto
+        if ($request->has('buscar') && $request->buscar !== '') {
+            $buscar = $request->buscar;
+            $query->where(function ($q) use ($buscar) {
+                $q->where('codigo', 'LIKE', "%{$buscar}%")
+                  ->orWhere('asunto', 'LIKE', "%{$buscar}%");
+            });
+        }
+
+        $tickets = $query->orderBy('created_at', 'desc')->paginate(15);
 
         return view('tickets.index', compact('tickets'));
     }
@@ -57,7 +77,7 @@ class TicketController extends Controller
         $validated = $request->validate([
             'asunto' => 'required|string|max:255',
             'descripcion' => 'required|string',
-            'tipo_servicio' => 'required|in:mantenimiento,asesoramiento,reparacion,configuracion,otro',
+            'tipo_servicio' => 'required|in:reparacion,mantenimiento,instalacion,consulta,otro',
             'prioridad' => 'required|in:baja,media,alta,urgente',
         ], [
             'asunto.required' => 'El asunto es obligatorio',
@@ -66,23 +86,28 @@ class TicketController extends Controller
             'prioridad.required' => 'La prioridad es obligatoria',
         ]);
 
-        $user = Auth::user();
+        try {
+            $user = Auth::user();
 
-        $ticket = Ticket::create([
-            'codigo' => Ticket::generarCodigo(),
-            'solicitante_id' => $user->id,
-            'dependencia_id' => $user->dependencia_id,
-            'unidad_academica_id' => $user->unidad_academica_id,
-            'asunto' => $validated['asunto'],
-            'descripcion' => $validated['descripcion'],
-            'tipo_servicio' => $validated['tipo_servicio'],
-            'prioridad' => $validated['prioridad'],
-            'estado' => 'pendiente',
-        ]);
+            $ticket = Ticket::create([
+                'asunto' => $validated['asunto'],
+                'descripcion' => $validated['descripcion'],
+                'tipo_servicio' => $validated['tipo_servicio'],
+                'prioridad' => $validated['prioridad'],
+                'solicitante_id' => $user->id,
+                'dependencia_id' => $user->dependencia_id,
+                'unidad_academica_id' => $user->unidad_academica_id,
+                'estado' => 'pendiente',
+            ]);
 
-        return redirect()
-            ->route('tickets.show', $ticket)
-            ->with('success', 'Ticket creado exitosamente. Código: ' . $ticket->codigo);
+            return redirect()
+                ->route('tickets.show', $ticket)
+                ->with('success', 'Ticket creado exitosamente. Código: ' . $ticket->codigo);
+        } catch (\Exception $e) {
+            return back()
+                ->withInput()
+                ->with('error', 'Error al crear el ticket: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -90,21 +115,88 @@ class TicketController extends Controller
      */
     public function show(Ticket $ticket)
     {
-        $ticket->load(['solicitante', 'dependencia', 'unidadAcademica', 'asignadoA']);
+        $ticket->load(['solicitante', 'dependencia', 'unidadAcademica', 'asignado']);
         
         $user = Auth::user();
         
         // Verificar permisos
-        if (!$user->hasPermission('tickets.view-all') && !$ticket->esSolicitante($user->id)) {
+        if (!$user->hasPermission('tickets.view-all') && $ticket->solicitante_id !== $user->id) {
             abort(403, 'No tienes permiso para ver este ticket.');
         }
 
         // Usuarios disponibles para asignar (solo encargados y admin)
         $usuariosParaAsignar = User::whereHas('roles', function($query) {
             $query->whereIn('slug', ['admin', 'encargado-lab']);
-        })->get();
+        })->where('activo', true)->get();
 
         return view('tickets.show', compact('ticket', 'usuariosParaAsignar'));
+    }
+
+    /**
+     * Mostrar formulario de edición
+     */
+    public function edit(Ticket $ticket)
+    {
+        $tiposServicio = Ticket::tiposServicio();
+        $prioridades = Ticket::prioridades();
+        $estados = Ticket::estados();
+        
+        // Usuarios disponibles para asignar
+        $usuariosParaAsignar = User::whereHas('roles', function($query) {
+            $query->whereIn('slug', ['admin', 'encargado-lab']);
+        })->where('activo', true)->get();
+
+        return view('tickets.edit', compact('ticket', 'tiposServicio', 'prioridades', 'estados', 'usuariosParaAsignar'));
+    }
+
+    /**
+     * Actualizar ticket
+     */
+    public function update(Request $request, Ticket $ticket)
+    {
+        $validated = $request->validate([
+            'asunto' => 'required|string|max:255',
+            'descripcion' => 'required|string',
+            'tipo_servicio' => 'required|in:reparacion,mantenimiento,instalacion,consulta,otro',
+            'prioridad' => 'required|in:baja,media,alta,urgente',
+            'estado' => 'required|in:pendiente,en_proceso,listo,finalizado,cancelado',
+            'asignado_a' => 'nullable|exists:users,id',
+            'observaciones' => 'nullable|string',
+            'solucion' => 'nullable|string',
+        ]);
+
+        try {
+            $dataToUpdate = [
+                'asunto' => $validated['asunto'],
+                'descripcion' => $validated['descripcion'],
+                'tipo_servicio' => $validated['tipo_servicio'],
+                'prioridad' => $validated['prioridad'],
+                'estado' => $validated['estado'],
+                'observaciones' => $validated['observaciones'] ?? null,
+                'solucion' => $validated['solucion'] ?? null,
+            ];
+
+            // Si se asigna a alguien por primera vez
+            if (!empty($validated['asignado_a']) && empty($ticket->asignado_a)) {
+                $dataToUpdate['asignado_a'] = $validated['asignado_a'];
+                $dataToUpdate['fecha_asignacion'] = now();
+                if ($ticket->estado === 'pendiente') {
+                    $dataToUpdate['estado'] = 'en_proceso';
+                }
+            } elseif (!empty($validated['asignado_a'])) {
+                $dataToUpdate['asignado_a'] = $validated['asignado_a'];
+            }
+
+            $ticket->update($dataToUpdate);
+
+            return redirect()
+                ->route('tickets.show', $ticket)
+                ->with('success', 'Ticket actualizado exitosamente');
+        } catch (\Exception $e) {
+            return back()
+                ->withInput()
+                ->with('error', 'Error al actualizar el ticket: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -130,8 +222,8 @@ class TicketController extends Controller
      */
     public function marcarListo(Request $request, Ticket $ticket)
     {
-        if (!$ticket->puedeSerMarcadoComoListo()) {
-            return back()->with('error', 'El ticket no puede ser marcado como listo en su estado actual.');
+        if ($ticket->estado !== 'en_proceso') {
+            return back()->with('error', 'El ticket debe estar en proceso para marcarlo como listo.');
         }
 
         $validated = $request->validate([
@@ -144,7 +236,7 @@ class TicketController extends Controller
         $ticket->update([
             'estado' => 'listo',
             'solucion' => $validated['solucion'],
-            'observaciones' => $validated['observaciones'] ?? null,
+            'observaciones' => $validated['observaciones'] ?? $ticket->observaciones,
             'fecha_listo' => now(),
         ]);
 
@@ -158,11 +250,11 @@ class TicketController extends Controller
     {
         $user = Auth::user();
 
-        if (!$ticket->esSolicitante($user->id)) {
+        if ($ticket->solicitante_id !== $user->id) {
             return back()->with('error', 'Solo el solicitante puede finalizar el ticket.');
         }
 
-        if (!$ticket->puedeSerFinalizado()) {
+        if ($ticket->estado !== 'listo') {
             return back()->with('error', 'El ticket debe estar en estado "Listo" para ser finalizado.');
         }
 
@@ -182,7 +274,7 @@ class TicketController extends Controller
         $user = Auth::user();
 
         // Solo el solicitante o admin pueden cancelar
-        if (!$ticket->esSolicitante($user->id) && !$user->hasRole('admin')) {
+        if ($ticket->solicitante_id !== $user->id && !$user->hasPermission('tickets.delete')) {
             return back()->with('error', 'No tienes permiso para cancelar este ticket.');
         }
 
@@ -217,5 +309,21 @@ class TicketController extends Controller
         ]);
 
         return back()->with('success', 'Observación agregada correctamente.');
+    }
+
+    /**
+     * Eliminar ticket
+     */
+    public function destroy(Ticket $ticket)
+    {
+        try {
+            $ticket->delete();
+
+            return redirect()
+                ->route('tickets.index')
+                ->with('success', 'Ticket eliminado exitosamente');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Error al eliminar el ticket: ' . $e->getMessage());
+        }
     }
 }

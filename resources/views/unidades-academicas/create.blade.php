@@ -52,11 +52,13 @@
                     <div class="col-md-2">
                         <div class="form-group">
                             <label>Estado</label>
+                            <input type="hidden" name="activo" value="0">
                             <div class="custom-control custom-switch">
                                 <input type="checkbox" 
                                        class="custom-control-input" 
                                        id="activo" 
                                        name="activo" 
+                                       value="1"
                                        {{ old('activo', true) ? 'checked' : '' }}>
                                 <label class="custom-control-label" for="activo">
                                     Activo
@@ -108,7 +110,7 @@ $(document).ready(function() {
             .join('')
             .substring(0, 10);
         
-        if ($('#codigo').val() === '' || confirm('¿Desea actualizar el código automáticamente?')) {
+        if ($('#codigo').val() === '') {
             $('#codigo').val(codigo);
         }
     });

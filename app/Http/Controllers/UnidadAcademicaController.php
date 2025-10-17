@@ -46,7 +46,6 @@ class UnidadAcademicaController extends Controller
             'nombre' => 'required|string|max:255|unique:unidades_academicas,nombre',
             'codigo' => 'required|string|max:50|unique:unidades_academicas,codigo',
             'descripcion' => 'nullable|string',
-            'activo' => 'nullable|boolean',
         ], [
             'nombre.required' => 'El nombre es obligatorio',
             'nombre.unique' => 'Este nombre ya está registrado',
@@ -59,7 +58,7 @@ class UnidadAcademicaController extends Controller
                 'nombre' => $validated['nombre'],
                 'codigo' => $validated['codigo'],
                 'descripcion' => $validated['descripcion'] ?? null,
-                'activo' => $request->has('activo') ? 1 : 0,
+                'activo' => $request->has('activo') ? true : false,
             ]);
 
             return redirect()
@@ -99,7 +98,6 @@ class UnidadAcademicaController extends Controller
             'nombre' => 'required|string|max:255|unique:unidades_academicas,nombre,' . $unidadesAcademica->id,
             'codigo' => 'required|string|max:50|unique:unidades_academicas,codigo,' . $unidadesAcademica->id,
             'descripcion' => 'nullable|string',
-            'activo' => 'nullable|boolean',
         ], [
             'nombre.required' => 'El nombre es obligatorio',
             'nombre.unique' => 'Este nombre ya está registrado',
@@ -112,7 +110,7 @@ class UnidadAcademicaController extends Controller
                 'nombre' => $validated['nombre'],
                 'codigo' => $validated['codigo'],
                 'descripcion' => $validated['descripcion'] ?? null,
-                'activo' => $request->has('activo') ? 1 : 0,
+                'activo' => $request->has('activo') ? true : false,
             ]);
 
             return redirect()

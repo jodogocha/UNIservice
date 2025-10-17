@@ -56,7 +56,6 @@ class DependenciaController extends Controller
             'codigo' => 'required|string|max:50|unique:dependencias,codigo',
             'unidad_academica_id' => 'required|exists:unidades_academicas,id',
             'descripcion' => 'nullable|string',
-            'activo' => 'nullable|boolean',
         ], [
             'nombre.required' => 'El nombre es obligatorio',
             'codigo.required' => 'El código es obligatorio',
@@ -70,7 +69,7 @@ class DependenciaController extends Controller
                 'codigo' => $validated['codigo'],
                 'unidad_academica_id' => $validated['unidad_academica_id'],
                 'descripcion' => $validated['descripcion'] ?? null,
-                'activo' => $request->has('activo') ? 1 : 0,
+                'activo' => $request->has('activo') ? true : false,
             ]);
 
             return redirect()
@@ -113,7 +112,6 @@ class DependenciaController extends Controller
             'codigo' => 'required|string|max:50|unique:dependencias,codigo,' . $dependencia->id,
             'unidad_academica_id' => 'required|exists:unidades_academicas,id',
             'descripcion' => 'nullable|string',
-            'activo' => 'nullable|boolean',
         ], [
             'nombre.required' => 'El nombre es obligatorio',
             'codigo.required' => 'El código es obligatorio',
@@ -127,7 +125,7 @@ class DependenciaController extends Controller
                 'codigo' => $validated['codigo'],
                 'unidad_academica_id' => $validated['unidad_academica_id'],
                 'descripcion' => $validated['descripcion'] ?? null,
-                'activo' => $request->has('activo') ? 1 : 0,
+                'activo' => $request->has('activo') ? true : false,
             ]);
 
             return redirect()

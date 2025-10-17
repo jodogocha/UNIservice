@@ -19,6 +19,19 @@ Route::middleware(['guest'])->group(function () {
     Route::post('/login', [LoginController::class, 'login']);
 });
 
+//Ruta de pureba del home
+Route::get('/test-home', function () {
+    return view('home', [
+        'user' => auth()->user(),
+        'ticketsPendientes' => 0,
+        'ticketsEnProceso' => 0,
+        'ticketsListos' => 0,
+        'ticketsFinalizados' => 0,
+        'usuariosActivos' => 0,
+        'ticketsRecientes' => collect()
+    ]);
+})->middleware('auth');
+
 // Logout (solo para autenticados)
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->middleware('auth');
 

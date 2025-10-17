@@ -10,11 +10,18 @@ use Illuminate\Support\Facades\Auth;
 class TicketController extends Controller
 {
     /**
-     * Listar todos los tickets (solo para admin y encargado)
+     * Listar todos los tickets (filtrados por unidad académica para encargados)
      */
     public function index(Request $request)
     {
+        $user = Auth::user();
+        
         $query = Ticket::with(['solicitante', 'asignado', 'dependencia', 'unidadAcademica']);
+
+        // Si NO es admin, filtrar por unidad académica del usuario
+        if (!$user->hasRole('admin')) {
+            $query->where('unidad_academica_id', $user->unidad_academica_id);
+        }
 
         // Filtro por estado
         if ($request->has('estado') && $request->estado !== '') {
@@ -36,7 +43,7 @@ class TicketController extends Controller
             $buscar = $request->buscar;
             $query->where(function ($q) use ($buscar) {
                 $q->where('codigo', 'LIKE', "%{$buscar}%")
-                  ->orWhere('asunto', 'LIKE', "%{$buscar}%");
+                ->orWhere('asunto', 'LIKE', "%{$buscar}%");
             });
         }
 
@@ -119,15 +126,30 @@ class TicketController extends Controller
         
         $user = Auth::user();
         
-        // Verificar permisos
-        if (!$user->hasPermission('tickets.view-all') && $ticket->solicitante_id !== $user->id) {
+        // Verificar permisos - Admin ve todos, encargados solo de su unidad, usuarios solo los suyos
+        if ($user->hasRole('admin')) {
+            // Admin puede ver todos
+        } elseif ($user->hasPermission('tickets.view-all')) {
+            // Encargado o técnico: solo de su unidad académica
+            if ($ticket->unidad_academica_id !== $user->unidad_academica_id) {
+                abort(403, 'No tienes permiso para ver tickets de otras unidades académicas.');
+            }
+        } elseif ($ticket->solicitante_id !== $user->id) {
+            // Usuario común: solo sus propios tickets
             abort(403, 'No tienes permiso para ver este ticket.');
         }
 
-        // Usuarios disponibles para asignar (solo encargados y admin)
+        // Usuarios disponibles para asignar (solo encargados y admin de la misma unidad académica)
         $usuariosParaAsignar = User::whereHas('roles', function($query) {
-            $query->whereIn('slug', ['admin', 'encargado-lab']);
-        })->where('activo', true)->get();
+            $query->whereIn('slug', ['admin', 'encargado-lab', 'tecnico']);
+        })
+        ->where('activo', true)
+        ->where(function($query) use ($user, $ticket) {
+            if (!$user->hasRole('admin')) {
+                $query->where('unidad_academica_id', $ticket->unidad_academica_id);
+            }
+        })
+        ->get();
 
         return view('tickets.show', compact('ticket', 'usuariosParaAsignar'));
     }
@@ -137,14 +159,28 @@ class TicketController extends Controller
      */
     public function edit(Ticket $ticket)
     {
+        $user = Auth::user();
+        
+        // Verificar permisos de unidad académica
+        if (!$user->hasRole('admin') && $ticket->unidad_academica_id !== $user->unidad_academica_id) {
+            abort(403, 'No tienes permiso para editar tickets de otras unidades académicas.');
+        }
+        
         $tiposServicio = Ticket::tiposServicio();
         $prioridades = Ticket::prioridades();
         $estados = Ticket::estados();
         
-        // Usuarios disponibles para asignar
+        // Usuarios disponibles para asignar (solo de la misma unidad académica)
         $usuariosParaAsignar = User::whereHas('roles', function($query) {
-            $query->whereIn('slug', ['admin', 'encargado-lab']);
-        })->where('activo', true)->get();
+            $query->whereIn('slug', ['admin', 'encargado-lab', 'tecnico']);
+        })
+        ->where('activo', true)
+        ->where(function($query) use ($user, $ticket) {
+            if (!$user->hasRole('admin')) {
+                $query->where('unidad_academica_id', $ticket->unidad_academica_id);
+            }
+        })
+        ->get();
 
         return view('tickets.edit', compact('ticket', 'tiposServicio', 'prioridades', 'estados', 'usuariosParaAsignar'));
     }
@@ -204,9 +240,22 @@ class TicketController extends Controller
      */
     public function asignar(Request $request, Ticket $ticket)
     {
+        $user = Auth::user();
+        
+        // Verificar que el ticket sea de su unidad académica (excepto admin)
+        if (!$user->hasRole('admin') && $ticket->unidad_academica_id !== $user->unidad_academica_id) {
+            return back()->with('error', 'No puedes asignar tickets de otras unidades académicas.');
+        }
+        
         $validated = $request->validate([
             'asignado_a' => 'required|exists:users,id',
         ]);
+        
+        // Verificar que el usuario asignado sea de la misma unidad académica
+        $usuarioAsignado = User::find($validated['asignado_a']);
+        if (!$user->hasRole('admin') && $usuarioAsignado->unidad_academica_id !== $ticket->unidad_academica_id) {
+            return back()->with('error', 'Solo puedes asignar tickets a usuarios de la misma unidad académica.');
+        }
 
         $ticket->update([
             'asignado_a' => $validated['asignado_a'],

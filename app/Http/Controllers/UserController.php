@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use App\Models\Role;
 use App\Models\Dependencia;
+use App\Models\Role;
 use App\Models\UnidadAcademica;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
@@ -41,9 +41,9 @@ class UserController extends Controller
             $buscar = $request->buscar;
             $query->where(function ($q) use ($buscar) {
                 $q->where('name', 'LIKE', "%{$buscar}%")
-                  ->orWhere('apellido', 'LIKE', "%{$buscar}%")
-                  ->orWhere('email', 'LIKE', "%{$buscar}%")
-                  ->orWhere('documento', 'LIKE', "%{$buscar}%");
+                    ->orWhere('apellido', 'LIKE', "%{$buscar}%")
+                    ->orWhere('email', 'LIKE', "%{$buscar}%")
+                    ->orWhere('documento', 'LIKE', "%{$buscar}%");
             });
         }
 
@@ -117,7 +117,7 @@ class UserController extends Controller
         } catch (\Exception $e) {
             return back()
                 ->withInput()
-                ->with('error', 'Error al crear el usuario: ' . $e->getMessage());
+                ->with('error', 'Error al crear el usuario: '.$e->getMessage());
         }
     }
 
@@ -152,8 +152,8 @@ class UserController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'apellido' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $usuario->id,
-            'documento' => 'nullable|string|unique:users,documento,' . $usuario->id,
+            'email' => 'required|email|unique:users,email,'.$usuario->id,
+            'documento' => 'nullable|string|unique:users,documento,'.$usuario->id,
             'telefono' => 'nullable|string|max:20',
             'password' => ['nullable', 'confirmed', Password::min(8)],
             'dependencia_id' => 'required|exists:dependencias,id',
@@ -186,7 +186,7 @@ class UserController extends Controller
             ];
 
             // Actualizar contraseña solo si se proporciona
-            if (!empty($validated['password'])) {
+            if (! empty($validated['password'])) {
                 $dataToUpdate['password'] = Hash::make($validated['password']);
             }
 
@@ -201,7 +201,7 @@ class UserController extends Controller
         } catch (\Exception $e) {
             return back()
                 ->withInput()
-                ->with('error', 'Error al actualizar el usuario: ' . $e->getMessage());
+                ->with('error', 'Error al actualizar el usuario: '.$e->getMessage());
         }
     }
 
@@ -238,7 +238,7 @@ class UserController extends Controller
         }
 
         $usuario->update([
-            'activo' => !$usuario->activo
+            'activo' => ! $usuario->activo,
         ]);
 
         $estado = $usuario->activo ? 'activado' : 'desactivado';

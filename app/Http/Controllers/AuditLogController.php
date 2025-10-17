@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\AuditLog;
 use App\Models\User;
-use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class AuditLogController extends Controller
 {
@@ -43,7 +43,7 @@ class AuditLogController extends Controller
 
         // Búsqueda por descripción
         if ($request->filled('buscar')) {
-            $query->where('description', 'LIKE', '%' . $request->buscar . '%');
+            $query->where('description', 'LIKE', '%'.$request->buscar.'%');
         }
 
         $logs = $query->orderBy('created_at', 'desc')->paginate(20)->appends(request()->query());
@@ -66,7 +66,7 @@ class AuditLogController extends Controller
     public function show(AuditLog $log)
     {
         $log->load('user');
-        
+
         return view('audit.show', compact('log'));
     }
 
@@ -100,19 +100,19 @@ class AuditLogController extends Controller
 
         $logs = $query->orderBy('created_at', 'desc')->get();
 
-        $filename = 'auditoria_' . date('Y-m-d_His') . '.csv';
-        
+        $filename = 'auditoria_'.date('Y-m-d_His').'.csv';
+
         $headers = [
             'Content-Type' => 'text/csv; charset=UTF-8',
             'Content-Disposition' => "attachment; filename=\"$filename\"",
         ];
 
-        $callback = function() use ($logs) {
+        $callback = function () use ($logs) {
             $file = fopen('php://output', 'w');
-            
+
             // BOM para UTF-8
             fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
-            
+
             // Encabezados
             fputcsv($file, [
                 'ID',
@@ -155,6 +155,6 @@ class AuditLogController extends Controller
         $date = Carbon::now()->subDays($validated['days']);
         $deleted = AuditLog::where('created_at', '<', $date)->delete();
 
-        return back()->with('success', "Se eliminaron {$deleted} registros de auditoría anteriores a " . $date->format('d/m/Y'));
+        return back()->with('success', "Se eliminaron {$deleted} registros de auditoría anteriores a ".$date->format('d/m/Y'));
     }
 }

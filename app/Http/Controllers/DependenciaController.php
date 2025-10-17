@@ -28,9 +28,9 @@ class DependenciaController extends Controller
         // Búsqueda por nombre o código
         if ($request->filled('buscar')) {
             $buscar = $request->buscar;
-            $query->where(function($q) use ($buscar) {
+            $query->where(function ($q) use ($buscar) {
                 $q->where('nombre', 'LIKE', "%{$buscar}%")
-                  ->orWhere('codigo', 'LIKE', "%{$buscar}%");
+                    ->orWhere('codigo', 'LIKE', "%{$buscar}%");
             });
         }
 
@@ -82,7 +82,7 @@ class DependenciaController extends Controller
         } catch (\Exception $e) {
             return back()
                 ->withInput()
-                ->with('error', 'Error al crear la dependencia: ' . $e->getMessage());
+                ->with('error', 'Error al crear la dependencia: '.$e->getMessage());
         }
     }
 
@@ -113,7 +113,7 @@ class DependenciaController extends Controller
     {
         $validated = $request->validate([
             'nombre' => 'required|string|max:255',
-            'codigo' => 'required|string|max:50|unique:dependencias,codigo,' . $dependencia->id,
+            'codigo' => 'required|string|max:50|unique:dependencias,codigo,'.$dependencia->id,
             'unidad_academica_id' => 'required|exists:unidades_academicas,id',
             'descripcion' => 'nullable|string',
         ], [
@@ -138,7 +138,7 @@ class DependenciaController extends Controller
         } catch (\Exception $e) {
             return back()
                 ->withInput()
-                ->with('error', 'Error al actualizar la dependencia: ' . $e->getMessage());
+                ->with('error', 'Error al actualizar la dependencia: '.$e->getMessage());
         }
     }
 
@@ -165,7 +165,7 @@ class DependenciaController extends Controller
     public function cambiarEstado(Dependencia $dependencia)
     {
         $dependencia->update([
-            'activo' => !$dependencia->activo
+            'activo' => ! $dependencia->activo,
         ]);
 
         $estado = $dependencia->activo ? 'activada' : 'desactivada';

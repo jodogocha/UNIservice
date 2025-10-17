@@ -207,130 +207,137 @@ return [
 
         // Sidebar items
         
-        ['header' => 'GESTIÓN DE TICKETS'],
-        
+        ['header' => 'TICKETS'],
+    
+        // Menú de Tickets con submenú
         [
-            'text' => 'Mis Tickets',
-            'route' => 'tickets.mis-tickets',
+            'text' => 'Gestión de Tickets',
             'icon' => 'fas fa-fw fa-ticket-alt',
-        ],
-        [
-            'text' => 'Nuevo Ticket',
-            'route' => 'tickets.create',
-            'icon' => 'fas fa-fw fa-plus-circle',
-            'can' => 'tickets.create',
-        ],
-        [
-            'text' => 'Todos los Tickets',
-            'route' => 'tickets.index',
-            'icon' => 'fas fa-fw fa-list-alt',
-            'can' => 'tickets.view-all',
+            'submenu' => [
+                [
+                    'text' => 'Mis Tickets',
+                    'route' => 'tickets.mis-tickets',
+                    'icon' => 'fas fa-fw fa-user-clock',
+                ],
+                [
+                    'text' => 'Todos los Tickets',
+                    'route' => 'tickets.index',
+                    'icon' => 'fas fa-fw fa-list-alt',
+                    'can' => 'tickets.view-all',
+                ],
+                [
+                    'text' => 'Nuevo Ticket',
+                    'route' => 'tickets.create',
+                    'icon' => 'fas fa-fw fa-plus-circle',
+                    'can' => 'tickets.create',
+                ],
+            ],
         ],
         
         ['header' => 'ADMINISTRACIÓN', 'can' => 'users.view'],
-
-            // Menú de Usuarios con submenú
-            [
-                'text' => 'Gestión de Usuarios',
-                'icon' => 'fas fa-fw fa-users',
-                'can' => 'users.view',
-                'submenu' => [
-                    [
-                        'text' => 'Todos los Usuarios',
-                        'route' => 'usuarios.index',
-                        'icon' => 'fas fa-fw fa-list',
-                        'can' => 'users.view',
-                    ],
-                    [
-                        'text' => 'Crear Usuario',
-                        'route' => 'usuarios.create',
-                        'icon' => 'fas fa-fw fa-user-plus',
-                        'can' => 'users.create',
-                    ],
+    
+        // Menú de Usuarios con submenú
+        [
+            'text' => 'Gestión de Usuarios',
+            'icon' => 'fas fa-fw fa-users',
+            'can' => 'users.view',
+            'submenu' => [
+                [
+                    'text' => 'Todos los Usuarios',
+                    'route' => 'usuarios.index',
+                    'icon' => 'fas fa-fw fa-list',
+                    'can' => 'users.view',
+                ],
+                [
+                    'text' => 'Crear Usuario',
+                    'route' => 'usuarios.create',
+                    'icon' => 'fas fa-fw fa-user-plus',
+                    'can' => 'users.create',
                 ],
             ],
-
-            // Menú de Roles con submenú
-            [
-                'text' => 'Gestión de Roles',
-                'icon' => 'fas fa-fw fa-user-tag',
-                'can' => 'users.view',
-                'submenu' => [
-                    [
-                        'text' => 'Todos los Roles',
-                        'route' => 'roles.index',
-                        'icon' => 'fas fa-fw fa-list',
-                        'can' => 'users.view',
-                    ],
-                    [
-                        'text' => 'Crear Rol',
-                        'route' => 'roles.create',
-                        'icon' => 'fas fa-fw fa-plus',
-                        'can' => 'users.create',
-                    ],
+        ],
+        
+        // Menú de Roles con submenú
+        [
+            'text' => 'Gestión de Roles',
+            'icon' => 'fas fa-fw fa-user-tag',
+            'can' => 'users.view',
+            'submenu' => [
+                [
+                    'text' => 'Todos los Roles',
+                    'route' => 'roles.index',
+                    'icon' => 'fas fa-fw fa-list',
+                    'can' => 'users.view',
+                ],
+                [
+                    'text' => 'Crear Rol',
+                    'route' => 'roles.create',
+                    'icon' => 'fas fa-fw fa-plus',
+                    'can' => 'users.create',
                 ],
             ],
-
-            // Menú de Unidades Académicas con submenú
-            [
-                'text' => 'Unidades Académicas',
-                'icon' => 'fas fa-fw fa-university',
-                'can' => 'users.view',
-                'submenu' => [
-                    [
-                        'text' => 'Todas las Unidades',
-                        'route' => 'unidades-academicas.index',
-                        'icon' => 'fas fa-fw fa-list',
-                        'can' => 'users.view',
-                    ],
-                    [
-                        'text' => 'Crear Unidad',
-                        'route' => 'unidades-academicas.create',
-                        'icon' => 'fas fa-fw fa-plus',
-                        'can' => 'users.create',
-                    ],
+        ],
+        
+        // Menú de Unidades Académicas con submenú
+        [
+            'text' => 'Unidades Académicas',
+            'icon' => 'fas fa-fw fa-university',
+            'can' => 'users.view',
+            'submenu' => [
+                [
+                    'text' => 'Todas las Unidades',
+                    'route' => 'unidades-academicas.index',
+                    'icon' => 'fas fa-fw fa-list',
+                    'can' => 'users.view',
+                ],
+                [
+                    'text' => 'Crear Unidad',
+                    'route' => 'unidades-academicas.create',
+                    'icon' => 'fas fa-fw fa-plus',
+                    'can' => 'users.create',
                 ],
             ],
-
-            // Menú de Dependencias con submenú
-            [
-                'text' => 'Dependencias',
-                'icon' => 'fas fa-fw fa-building',
-                'can' => 'users.view',
-                'submenu' => [
-                    [
-                        'text' => 'Todas las Dependencias',
-                        'route' => 'dependencias.index',
-                        'icon' => 'fas fa-fw fa-list',
-                        'can' => 'users.view',
-                    ],
-                    [
-                        'text' => 'Crear Dependencia',
-                        'route' => 'dependencias.create',
-                        'icon' => 'fas fa-fw fa-plus',
-                        'can' => 'users.create',
-                    ],
+        ],
+        
+        // Menú de Dependencias con submenú
+        [
+            'text' => 'Dependencias',
+            'icon' => 'fas fa-fw fa-building',
+            'can' => 'users.view',
+            'submenu' => [
+                [
+                    'text' => 'Todas las Dependencias',
+                    'route' => 'dependencias.index',
+                    'icon' => 'fas fa-fw fa-list',
+                    'can' => 'users.view',
+                ],
+                [
+                    'text' => 'Crear Dependencia',
+                    'route' => 'dependencias.create',
+                    'icon' => 'fas fa-fw fa-plus',
+                    'can' => 'users.create',
                 ],
             ],
-
-            [
-                'text' => 'Reportes',
-                'url' => '#',
-                'icon' => 'fas fa-fw fa-chart-bar',
-                'can' => 'reports.view',
-            ],
-            [
-                'text' => 'Auditoría',
-                'url' => '#',
-                'icon' => 'fas fa-fw fa-history',
-                'can' => 'audit.view',
-            ],
-            [
-                'text' => 'Configuración',
-                'url' => '#',
-                'icon' => 'fas fa-fw fa-cog',
-                'can' => 'config.manage',
-            ],
+        ],
+        
+        [
+            'text' => 'Reportes',
+            'url' => '#',
+            'icon' => 'fas fa-fw fa-chart-bar',
+            'can' => 'reports.view',
+        ],
+        [
+            'text' => 'Auditoría',
+            'url' => '#',
+            'icon' => 'fas fa-fw fa-history',
+            'can' => 'audit.view',
+        ],
+        [
+            'text' => 'Configuración',
+            'url' => '#',
+            'icon' => 'fas fa-fw fa-cog',
+            'can' => 'config.manage',
+        ],
     ],
 
     /*

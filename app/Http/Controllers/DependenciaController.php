@@ -56,7 +56,7 @@ class DependenciaController extends Controller
             'codigo' => 'required|string|max:50|unique:dependencias,codigo',
             'unidad_academica_id' => 'required|exists:unidades_academicas,id',
             'descripcion' => 'nullable|string',
-            'activo' => 'boolean',
+            'activo' => 'nullable|boolean',
         ], [
             'nombre.required' => 'El nombre es obligatorio',
             'codigo.required' => 'El código es obligatorio',
@@ -64,17 +64,23 @@ class DependenciaController extends Controller
             'unidad_academica_id.required' => 'Debe seleccionar una unidad académica',
         ]);
 
-        Dependencia::create([
-            'nombre' => $validated['nombre'],
-            'codigo' => $validated['codigo'],
-            'unidad_academica_id' => $validated['unidad_academica_id'],
-            'descripcion' => $validated['descripcion'] ?? null,
-            'activo' => $request->has('activo') ? true : false,
-        ]);
+        try {
+            Dependencia::create([
+                'nombre' => $validated['nombre'],
+                'codigo' => $validated['codigo'],
+                'unidad_academica_id' => $validated['unidad_academica_id'],
+                'descripcion' => $validated['descripcion'] ?? null,
+                'activo' => $request->has('activo') ? 1 : 0,
+            ]);
 
-        return redirect()
-            ->route('dependencias.index')
-            ->with('success', 'Dependencia creada exitosamente');
+            return redirect()
+                ->route('dependencias.index')
+                ->with('success', 'Dependencia creada exitosamente');
+        } catch (\Exception $e) {
+            return back()
+                ->withInput()
+                ->with('error', 'Error al crear la dependencia: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -107,7 +113,7 @@ class DependenciaController extends Controller
             'codigo' => 'required|string|max:50|unique:dependencias,codigo,' . $dependencia->id,
             'unidad_academica_id' => 'required|exists:unidades_academicas,id',
             'descripcion' => 'nullable|string',
-            'activo' => 'boolean',
+            'activo' => 'nullable|boolean',
         ], [
             'nombre.required' => 'El nombre es obligatorio',
             'codigo.required' => 'El código es obligatorio',
@@ -115,17 +121,23 @@ class DependenciaController extends Controller
             'unidad_academica_id.required' => 'Debe seleccionar una unidad académica',
         ]);
 
-        $dependencia->update([
-            'nombre' => $validated['nombre'],
-            'codigo' => $validated['codigo'],
-            'unidad_academica_id' => $validated['unidad_academica_id'],
-            'descripcion' => $validated['descripcion'] ?? null,
-            'activo' => $request->has('activo') ? true : false,
-        ]);
+        try {
+            $dependencia->update([
+                'nombre' => $validated['nombre'],
+                'codigo' => $validated['codigo'],
+                'unidad_academica_id' => $validated['unidad_academica_id'],
+                'descripcion' => $validated['descripcion'] ?? null,
+                'activo' => $request->has('activo') ? 1 : 0,
+            ]);
 
-        return redirect()
-            ->route('dependencias.index')
-            ->with('success', 'Dependencia actualizada exitosamente');
+            return redirect()
+                ->route('dependencias.index')
+                ->with('success', 'Dependencia actualizada exitosamente');
+        } catch (\Exception $e) {
+            return back()
+                ->withInput()
+                ->with('error', 'Error al actualizar la dependencia: ' . $e->getMessage());
+        }
     }
 
     /**

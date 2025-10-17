@@ -30,10 +30,8 @@ class TicketController extends Controller
      */
     public function misTickets()
     {
-        $user = Auth::user();
-        
-        $tickets = Ticket::with(['dependencia', 'asignadoA'])
-            ->misTickets($user->id)
+        $tickets = Ticket::with(['dependencia', 'unidadAcademica', 'asignado'])
+            ->where('solicitante_id', auth()->id())
             ->orderBy('created_at', 'desc')
             ->paginate(15);
 

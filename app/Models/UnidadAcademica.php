@@ -15,20 +15,26 @@ class UnidadAcademica extends Model
         'nombre',
         'codigo',
         'descripcion',
-        'activo'
+        'activo',
     ];
 
     protected $casts = [
         'activo' => 'boolean',
     ];
 
+    /**
+     * Relación con Dependencias
+     */
     public function dependencias()
     {
-        return $this->hasMany(Dependencia::class);
+        return $this->hasMany(Dependencia::class, 'unidad_academica_id');
     }
 
-    public function usuarios()
+    /**
+     * Relación con Usuarios a través de dependencias
+     */
+    public function users()
     {
-        return $this->hasMany(User::class);
+        return $this->hasManyThrough(User::class, Dependencia::class, 'unidad_academica_id', 'dependencia_id');
     }
 }

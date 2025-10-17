@@ -44,7 +44,7 @@
                         <dt class="col-sm-3">Estado:</dt>
                         <dd class="col-sm-9">
                             <span class="badge badge-lg {{ $ticket->estado_badge }}">
-                                {{ Ticket::estados()[$ticket->estado] }}
+                                {{ $ticket->estado_nombre }}
                             </span>
                         </dd>
 

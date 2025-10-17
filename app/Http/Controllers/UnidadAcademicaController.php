@@ -46,7 +46,7 @@ class UnidadAcademicaController extends Controller
             'nombre' => 'required|string|max:255|unique:unidades_academicas,nombre',
             'codigo' => 'required|string|max:50|unique:unidades_academicas,codigo',
             'descripcion' => 'nullable|string',
-            'activo' => 'boolean',
+            'activo' => 'nullable|boolean',
         ], [
             'nombre.required' => 'El nombre es obligatorio',
             'nombre.unique' => 'Este nombre ya está registrado',
@@ -54,16 +54,22 @@ class UnidadAcademicaController extends Controller
             'codigo.unique' => 'Este código ya está registrado',
         ]);
 
-        UnidadAcademica::create([
-            'nombre' => $validated['nombre'],
-            'codigo' => $validated['codigo'],
-            'descripcion' => $validated['descripcion'] ?? null,
-            'activo' => $request->has('activo') ? true : false,
-        ]);
+        try {
+            UnidadAcademica::create([
+                'nombre' => $validated['nombre'],
+                'codigo' => $validated['codigo'],
+                'descripcion' => $validated['descripcion'] ?? null,
+                'activo' => $request->has('activo') ? 1 : 0,
+            ]);
 
-        return redirect()
-            ->route('unidades-academicas.index')
-            ->with('success', 'Unidad Académica creada exitosamente');
+            return redirect()
+                ->route('unidades-academicas.index')
+                ->with('success', 'Unidad Académica creada exitosamente');
+        } catch (\Exception $e) {
+            return back()
+                ->withInput()
+                ->with('error', 'Error al crear la unidad académica: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -93,7 +99,7 @@ class UnidadAcademicaController extends Controller
             'nombre' => 'required|string|max:255|unique:unidades_academicas,nombre,' . $unidadesAcademica->id,
             'codigo' => 'required|string|max:50|unique:unidades_academicas,codigo,' . $unidadesAcademica->id,
             'descripcion' => 'nullable|string',
-            'activo' => 'boolean',
+            'activo' => 'nullable|boolean',
         ], [
             'nombre.required' => 'El nombre es obligatorio',
             'nombre.unique' => 'Este nombre ya está registrado',
@@ -101,16 +107,22 @@ class UnidadAcademicaController extends Controller
             'codigo.unique' => 'Este código ya está registrado',
         ]);
 
-        $unidadesAcademica->update([
-            'nombre' => $validated['nombre'],
-            'codigo' => $validated['codigo'],
-            'descripcion' => $validated['descripcion'] ?? null,
-            'activo' => $request->has('activo') ? true : false,
-        ]);
+        try {
+            $unidadesAcademica->update([
+                'nombre' => $validated['nombre'],
+                'codigo' => $validated['codigo'],
+                'descripcion' => $validated['descripcion'] ?? null,
+                'activo' => $request->has('activo') ? 1 : 0,
+            ]);
 
-        return redirect()
-            ->route('unidades-academicas.index')
-            ->with('success', 'Unidad Académica actualizada exitosamente');
+            return redirect()
+                ->route('unidades-academicas.index')
+                ->with('success', 'Unidad Académica actualizada exitosamente');
+        } catch (\Exception $e) {
+            return back()
+                ->withInput()
+                ->with('error', 'Error al actualizar la unidad académica: ' . $e->getMessage());
+        }
     }
 
     /**

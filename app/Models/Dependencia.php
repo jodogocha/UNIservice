@@ -9,25 +9,33 @@ class Dependencia extends Model
 {
     use HasFactory;
 
+    protected $table = 'dependencias';
+
     protected $fillable = [
-        'unidad_academica_id',
         'nombre',
         'codigo',
+        'unidad_academica_id',
         'descripcion',
-        'activo'
+        'activo',
     ];
 
     protected $casts = [
         'activo' => 'boolean',
     ];
 
+    /**
+     * Relación con Unidad Académica
+     */
     public function unidadAcademica()
     {
-        return $this->belongsTo(UnidadAcademica::class);
+        return $this->belongsTo(UnidadAcademica::class, 'unidad_academica_id');
     }
 
-    public function usuarios()
+    /**
+     * Relación con Usuarios
+     */
+    public function users()
     {
-        return $this->hasMany(User::class);
+        return $this->hasMany(User::class, 'dependencia_id');
     }
 }

@@ -311,10 +311,6 @@ return [
         ],
 
         // Sidebar items:
-        [
-            'type' => 'sidebar-menu-search',
-            'text' => 'search',
-        ],
         
         ['header' => 'ADMINISTRACIÓN', 'can' => 'users.view'],
         [

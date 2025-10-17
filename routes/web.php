@@ -6,6 +6,8 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\UnidadAcademicaController;
+use App\Http\Controllers\DependenciaController;
 
 // Ruta raíz - redirige al login si no está autenticado
 Route::get('/', function () {
@@ -26,6 +28,21 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->midd
 
 // Rutas protegidas - TODAS requieren autenticación
 Route::middleware(['auth'])->group(function () {
+    // Gestión de Unidades Académicas
+    Route::middleware('permission:users.view')->group(function () {
+        Route::resource('unidades-academicas', UnidadAcademicaController::class);
+        Route::post('unidades-academicas/{unidadesAcademica}/cambiar-estado', [UnidadAcademicaController::class, 'cambiarEstado'])
+            ->name('unidades-academicas.cambiar-estado')
+            ->middleware('permission:users.edit');
+    });
+
+    // Gestión de Dependencias
+    Route::middleware('permission:users.view')->group(function () {
+        Route::resource('dependencias', DependenciaController::class);
+        Route::post('dependencias/{dependencia}/cambiar-estado', [DependenciaController::class, 'cambiarEstado'])
+            ->name('dependencias.cambiar-estado')
+            ->middleware('permission:users.edit');
+    });
 
     // Gestión de Roles
     Route::middleware('permission:users.view')->group(function () {

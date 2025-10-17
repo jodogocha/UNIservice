@@ -5,6 +5,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\RoleController;
 
 // Ruta raíz - redirige al login si no está autenticado
 Route::get('/', function () {
@@ -25,6 +26,11 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->midd
 
 // Rutas protegidas - TODAS requieren autenticación
 Route::middleware(['auth'])->group(function () {
+
+    // Gestión de Roles
+    Route::middleware('permission:users.view')->group(function () {
+        Route::resource('roles', RoleController::class);
+    });
     
     // Gestión de Usuarios
     Route::middleware('permission:users.view')->group(function () {

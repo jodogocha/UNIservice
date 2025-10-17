@@ -37,7 +37,7 @@ return [
     |--------------------------------------------------------------------------
     */
 
-    'logo' => '<b>UNI</b>service',
+    'logo' => '<b>UNI</b>Service',
     'logo_img' => 'images/logos/humanidades.png',
     'logo_img_class' => 'brand-image elevation-3',
     'logo_img_xl' => null,
@@ -198,14 +198,14 @@ return [
     |--------------------------------------------------------------------------
     */
 
-    'menu' => [
+   'menu' => [
         // Navbar items:
         [
             'type' => 'fullscreen-widget',
             'topnav_right' => true,
         ],
 
-        // Sidebar items - SIN buscador y SIN Dashboard
+        // Sidebar items
         
         ['header' => 'GESTIÓN DE TICKETS'],
         
@@ -229,12 +229,48 @@ return [
         
         ['header' => 'ADMINISTRACIÓN', 'can' => 'users.view'],
         
+        // Menú de Usuarios con submenú
         [
-            'text' => 'Usuarios',
-            'url' => 'usuarios.index',
+            'text' => 'Gestión de Usuarios',
             'icon' => 'fas fa-fw fa-users',
             'can' => 'users.view',
+            'submenu' => [
+                [
+                    'text' => 'Todos los Usuarios',
+                    'route' => 'usuarios.index',
+                    'icon' => 'fas fa-fw fa-list',
+                    'can' => 'users.view',
+                ],
+                [
+                    'text' => 'Crear Usuario',
+                    'route' => 'usuarios.create',
+                    'icon' => 'fas fa-fw fa-user-plus',
+                    'can' => 'users.create',
+                ],
+            ],
         ],
+        
+        // Menú de Roles con submenú
+        [
+            'text' => 'Gestión de Roles',
+            'icon' => 'fas fa-fw fa-user-tag',
+            'can' => 'users.view',
+            'submenu' => [
+                [
+                    'text' => 'Todos los Roles',
+                    'route' => 'roles.index',
+                    'icon' => 'fas fa-fw fa-list',
+                    'can' => 'users.view',
+                ],
+                [
+                    'text' => 'Crear Rol',
+                    'route' => 'roles.create',
+                    'icon' => 'fas fa-fw fa-plus',
+                    'can' => 'users.create',
+                ],
+            ],
+        ],
+        
         [
             'text' => 'Reportes',
             'url' => '#',

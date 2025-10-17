@@ -1,0 +1,91 @@
+/* Logo en la barra lateral */
+.brand-link {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 15px 10px !important;
+    text-align: center !important;
+    background-color: #343a40 !important;
+}
+
+.brand-image {
+    width: 70px !important;
+    height: 70px !important;
+    max-height: 70px !important;
+    border-radius: 50% !important;
+    margin: 0 auto 10px auto !important;
+    float: none !important;
+    object-fit: cover !important;
+}
+
+.brand-link .brand-text {
+    display: block !important;
+    font-size: 18px !important;
+    font-weight: bold !important;
+    margin-left: 0 !important;
+    text-align: center !important;
+    color: white !important;
+}
+
+/* Logo en el login */
+.login-box .card {
+    margin-top: 20px;
+}
+
+.login-logo img {
+    margin-bottom: 15px;
+}
+
+.login-box-msg {
+    margin: 20px 0 15px 0;
+    text-align: center;
+}
+
+/* Ajustes para sidebar colapsado */
+.sidebar-mini.sidebar-collapse .brand-link {
+    padding: 10px 5px !important;
+}
+
+.sidebar-mini.sidebar-collapse .brand-image {
+    width: 40px !important;
+    height: 40px !important;
+    margin-bottom: 0 !important;
+}
+
+.sidebar-mini.sidebar-collapse .brand-text {
+    display: none !important;
+}
+
+/* Ajustes adicionales para el sidebar */
+.main-sidebar {
+    overflow-y: auto;
+}
+
+/* Remover el borde del logo */
+.brand-link {
+    border-bottom: 1px solid #4b545c;
+}
+
+/* Estilo cuando el sidebar está colapsado y se hace hover */
+.sidebar-mini.sidebar-collapse .main-sidebar:hover .brand-link {
+    padding: 15px 10px !important;
+}
+
+.sidebar-mini.sidebar-collapse .main-sidebar:hover .brand-image {
+    width: 70px !important;
+    height: 70px !important;
+    margin-bottom: 10px !important;
+}
+
+.sidebar-mini.sidebar-collapse .main-sidebar:hover .brand-text {
+    display: block !important;
+}
+
+/* Asegurar que el logo se vea bien en todas las resoluciones */
+@media (max-width: 768px) {
+    .brand-image {
+        width: 50px !important;
+        height: 50px !important;
+    }
+}

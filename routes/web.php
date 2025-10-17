@@ -5,17 +5,24 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\TicketController;
 
-// Rutas públicas
+// Ruta raíz - redirige al login si no está autenticado
 Route::get('/', function () {
-    return redirect('/login');
+    if (auth()->check()) {
+        return redirect()->route('home');
+    }
+    return redirect()->route('login');
 });
 
-// Rutas de autenticación
-Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [LoginController::class, 'login']);
-Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+// Rutas de autenticación (solo accesibles si NO está autenticado)
+Route::middleware(['guest'])->group(function () {
+    Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [LoginController::class, 'login']);
+});
 
-// Rutas protegidas
+// Logout (solo para autenticados)
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->middleware('auth');
+
+// Rutas protegidas - TODAS requieren autenticación
 Route::middleware(['auth'])->group(function () {
     
     // Dashboard

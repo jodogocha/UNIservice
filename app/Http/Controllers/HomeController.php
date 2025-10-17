@@ -27,14 +27,14 @@ class HomeController extends Controller
                 ->get();
         } else {
             // Funcionario: solo sus tickets
-            $ticketsPendientes = Ticket::misTickets($user->id)->where('estado', 'pendiente')->count();
-            $ticketsEnProceso = Ticket::misTickets($user->id)->where('estado', 'en_proceso')->count();
-            $ticketsListos = Ticket::misTickets($user->id)->where('estado', 'listo')->count();
-            $ticketsFinalizados = Ticket::misTickets($user->id)->where('estado', 'finalizado')->count();
+            $ticketsPendientes = Ticket::where('solicitante_id', $user->id)->where('estado', 'pendiente')->count();
+            $ticketsEnProceso = Ticket::where('solicitante_id', $user->id)->where('estado', 'en_proceso')->count();
+            $ticketsListos = Ticket::where('solicitante_id', $user->id)->where('estado', 'listo')->count();
+            $ticketsFinalizados = Ticket::where('solicitante_id', $user->id)->where('estado', 'finalizado')->count();
             $usuariosActivos = 0;
             
             $ticketsRecientes = Ticket::with(['dependencia', 'asignadoA'])
-                ->misTickets($user->id)
+                ->where('solicitante_id', $user->id)
                 ->orderBy('created_at', 'desc')
                 ->limit(5)
                 ->get();

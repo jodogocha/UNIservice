@@ -1,5 +1,9 @@
 @extends('adminlte::page')
 
+@section('css')
+    <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
+@stop
+
 @section('title', 'Detalle del Ticket')
 
 @section('content_header')

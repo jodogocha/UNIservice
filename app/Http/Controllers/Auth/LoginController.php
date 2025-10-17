@@ -10,6 +10,11 @@ class LoginController extends Controller
 {
     public function showLoginForm()
     {
+        // Si ya está autenticado, redirigir al home
+        if (Auth::check()) {
+            return redirect()->route('home');
+        }
+        
         return view('auth.login');
     }
 
@@ -18,6 +23,10 @@ class LoginController extends Controller
         $credentials = $request->validate([
             'email' => 'required|email',
             'password' => 'required',
+        ], [
+            'email.required' => 'El email es obligatorio',
+            'email.email' => 'Debe ser un email válido',
+            'password.required' => 'La contraseña es obligatoria',
         ]);
 
         if (Auth::attempt($credentials, $request->filled('remember'))) {
@@ -28,10 +37,11 @@ class LoginController extends Controller
                 Auth::logout();
                 return back()->withErrors([
                     'email' => 'Tu cuenta está inactiva. Contacta al administrador.',
-                ]);
+                ])->onlyInput('email');
             }
 
-            return redirect()->intended('/home');
+            // Redirigir siempre al home después del login exitoso
+            return redirect()->route('home')->with('success', '¡Bienvenido ' . Auth::user()->nombre_completo . '!');
         }
 
         return back()->withErrors([
@@ -45,6 +55,6 @@ class LoginController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/login');
+        return redirect()->route('login')->with('success', 'Sesión cerrada correctamente.');
     }
 }

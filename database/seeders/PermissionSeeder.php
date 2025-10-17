@@ -31,7 +31,8 @@ class PermissionSeeder extends Seeder
             ['nombre' => 'Exportar reportes', 'slug' => 'reports.export', 'descripcion' => 'Exportar reportes a PDF/Excel'],
             
             // Permisos de Auditoría
-            ['nombre' => 'Ver auditoría', 'slug' => 'audit.view', 'descripcion' => 'Ver logs de auditoría del sistema'],
+            ['nombre' => 'Ver Auditoría', 'slug' => 'audit.view', 'descripcion' => 'Ver logs de auditoría del sistema'],
+            ['nombre' => 'Gestionar Auditoría', 'slug' => 'audit.manage', 'descripcion' => 'Limpiar y exportar logs de auditoría'],
             
             // Permisos de Configuración
             ['nombre' => 'Gestionar configuración', 'slug' => 'config.manage', 'descripcion' => 'Administrar configuración del sistema'],

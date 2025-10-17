@@ -2,39 +2,47 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\Facades\Blade;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
-use App\Models\Permission;
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Auth;
 
 class AppServiceProvider extends ServiceProvider
 {
+    /**
+     * Register any application services.
+     */
     public function register(): void
     {
         //
     }
 
+    /**
+     * Bootstrap any application services.
+     */
     public function boot(): void
     {
-        // Registrar Gates para permisos
-        try {
-            Permission::all()->each(function ($permission) {
-                Gate::define($permission->slug, function ($user) use ($permission) {
-                    return $user->hasPermission($permission->slug);
-                });
-            });
-        } catch (\Exception $e) {
-            // Ignorar si las tablas no existen
-        }
-
-        // Directiva para verificar roles
-        Blade::if('role', function ($role) {
-            return auth()->check() && auth()->user()->hasRole($role);
-        });
-
-        // Directiva para verificar permisos
-        Blade::if('permission', function ($permission) {
-            return auth()->check() && auth()->user()->hasPermission($permission);
+        // Compartir variables de logo en todas las vistas
+        View::composer('*', function ($view) {
+            if (Auth::check()) {
+                $user = Auth::user();
+                $unidadAcademica = $user->unidadAcademica;
+                
+                if ($unidadAcademica && $unidadAcademica->logo) {
+                    $logoPath = $unidadAcademica->logo;
+                    $logoAlt = "Logo {$unidadAcademica->nombre}";
+                    $nombreUnidad = $unidadAcademica->nombre;
+                } else {
+                    $logoPath = 'images/logos/humanidades.png';
+                    $logoAlt = 'Logo UNI';
+                    $nombreUnidad = 'Universidad Nacional de Itapúa';
+                }
+                
+                $view->with([
+                    'userLogo' => $logoPath,
+                    'userLogoAlt' => $logoAlt,
+                    'userUnidadAcademica' => $nombreUnidad,
+                ]);
+            }
         });
     }
 }

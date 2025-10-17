@@ -15,6 +15,7 @@ class UnidadAcademica extends Model
         'nombre',
         'codigo',
         'descripcion',
+        'logo', // Agregar este campo
         'activo',
     ];
 
@@ -36,5 +37,21 @@ class UnidadAcademica extends Model
     public function users()
     {
         return $this->hasManyThrough(User::class, Dependencia::class, 'unidad_academica_id', 'dependencia_id');
+    }
+
+    /**
+     * Obtener la ruta del logo o una por defecto
+     */
+    public function getLogoPathAttribute()
+    {
+        return $this->logo ?? 'images/logos/default.png';
+    }
+
+    /**
+     * Obtener la URL completa del logo
+     */
+    public function getLogoUrlAttribute()
+    {
+        return asset($this->logo_path);
     }
 }

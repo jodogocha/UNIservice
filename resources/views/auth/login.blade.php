@@ -21,58 +21,46 @@
             <div class="card-body">
                 {{-- Logo --}}
                 <div class="text-center mb-3">
-                    <img src="{{ asset('images/logos/humanidades.png') }}" 
-                         alt="Logo Facultad de Humanidades" 
-                         class="img-circle elevation-3"
-                         style="width: 150px; height: 150px; object-fit: cover;">
+                    <img src="{{ asset('images/logos/uni.png') }}" 
+                         alt="Logo de la UNI" 
+                         class="img-fluid" 
+                         style="max-width: 150px;"> {{-- ← QUITAR img-circle, CAMBIAR A img-fluid --}}
                 </div>
 
                 {{-- Título --}}
-                <h4 class="text-center mb-3">Iniciar Sesión</h4>
+                <h4 class="login-box-msg"><b>UNI</b>Service</h4>
+                <p class="login-box-msg">Inicia sesión para continuar</p>
 
-                {{-- Mensajes de éxito --}}
-                @if(session('success'))
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        {{ session('success') }}
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                @endif
-
-                {{-- Descripción --}}
-                <p class="login-box-msg">Ingrese sus credenciales para continuar</p>
-
-                {{-- Formulario --}}
+                {{-- Formulario de Login --}}
                 <form action="{{ route('login') }}" method="post">
                     @csrf
 
-                    {{-- Email field --}}
+                    {{-- Email --}}
                     <div class="input-group mb-3">
                         <input type="email" 
                                name="email" 
-                               class="form-control @error('email') is-invalid @enderror"
-                               value="{{ old('email') }}" 
-                               placeholder="Email" 
-                               autofocus 
-                               required>
+                               class="form-control @error('email') is-invalid @enderror" 
+                               placeholder="Correo electrónico"
+                               value="{{ old('email') }}"
+                               required 
+                               autofocus>
                         <div class="input-group-append">
                             <div class="input-group-text">
                                 <span class="fas fa-envelope"></span>
                             </div>
                         </div>
                         @error('email')
-                            <span class="invalid-feedback d-block" role="alert">
+                            <span class="invalid-feedback" role="alert">
                                 <strong>{{ $message }}</strong>
                             </span>
                         @enderror
                     </div>
 
-                    {{-- Password field --}}
+                    {{-- Password --}}
                     <div class="input-group mb-3">
                         <input type="password" 
                                name="password" 
-                               class="form-control @error('password') is-invalid @enderror"
+                               class="form-control @error('password') is-invalid @enderror" 
                                placeholder="Contraseña"
                                required>
                         <div class="input-group-append">
@@ -81,85 +69,44 @@
                             </div>
                         </div>
                         @error('password')
-                            <span class="invalid-feedback d-block" role="alert">
+                            <span class="invalid-feedback" role="alert">
                                 <strong>{{ $message }}</strong>
                             </span>
                         @enderror
                     </div>
 
-                    {{-- Remember me y botón de login --}}
-                    <div class="row">
-                        <div class="col-7">
+                    {{-- Remember Me --}}
+                    <div class="row mb-3">
+                        <div class="col-8">
                             <div class="icheck-primary">
-                                <input type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }}>
+                                <input type="checkbox" id="remember" name="remember" {{ old('remember') ? 'checked' : '' }}>
                                 <label for="remember">
                                     Recordarme
                                 </label>
                             </div>
                         </div>
-                        <div class="col-5">
+                    </div>
+
+                    {{-- Submit Button --}}
+                    <div class="row">
+                        <div class="col-12">
                             <button type="submit" class="btn btn-primary btn-block">
-                                <span class="fas fa-sign-in-alt"></span>
-                                Ingresar
+                                <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
                             </button>
                         </div>
                     </div>
                 </form>
 
-                {{-- Footer del card --}}
-                <hr>
-                <p class="text-center mb-0">
-                    <small class="text-muted">
-                        <strong>UNIservice</strong><br>
-                        Facultad de Humanidades, Ciencias Sociales y Cultura Guaraní<br>
-                        Universidad Nacional de Itapúa
-                    </small>
-                </p>
+                @if(session('status'))
+                    <div class="alert alert-success mt-3" role="alert">
+                        {{ session('status') }}
+                    </div>
+                @endif
             </div>
         </div>
     </div>
 @stop
 
 @section('adminlte_css')
-    <style>
-        body.login-page {
-            background-color: #e9ecef;
-        }
-        
-        .login-box {
-            width: 400px;
-            margin: 7% auto;
-        }
-        
-        .login-box .card {
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
-        }
-        
-        .login-box-msg {
-            margin: 0 0 20px 0;
-            text-align: center;
-            padding: 0 20px;
-            color: #6c757d;
-        }
-
-        @media (max-width: 768px) {
-            .login-box {
-                width: 90%;
-                margin-top: 5%;
-            }
-        }
-    </style>
-@stop
-
-@section('adminlte_js')
-    <script>
-        $(function() {
-            $('input').iCheck({
-                checkboxClass: 'icheckbox_square-blue',
-                radioClass: 'iradio_square-blue',
-                increaseArea: '20%'
-            });
-        });
-    </script>
+    <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
 @stop

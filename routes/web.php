@@ -8,6 +8,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UnidadAcademicaController;
 use App\Http\Controllers\DependenciaController;
+use App\Http\Controllers\AuditLogController;
 
 // Ruta raíz - redirige al login si no está autenticado
 Route::get('/', function () {
@@ -31,6 +32,16 @@ Route::middleware(['auth'])->group(function () {
     
     // Dashboard
     Route::get('/home', [HomeController::class, 'index'])->name('home');
+
+    // Auditoría (solo admin)
+    Route::middleware(['auth', 'permission:audit.view'])->group(function () {
+        Route::get('/auditoria', [AuditLogController::class, 'index'])->name('audit.index');
+        Route::get('/auditoria/{log}', [AuditLogController::class, 'show'])->name('audit.show');
+        Route::get('/auditoria/exportar/csv', [AuditLogController::class, 'export'])->name('audit.export');
+        Route::post('/auditoria/limpiar', [AuditLogController::class, 'clean'])
+            ->name('audit.clean')
+            ->middleware('permission:audit.manage');
+    });
     
     // Gestión de Unidades Académicas
     Route::middleware('permission:users.view')->group(function () {

@@ -107,6 +107,15 @@ class TicketController extends Controller
                 'estado' => 'pendiente',
             ]);
 
+            AuditLog::log(
+                'create',
+                'tickets',
+                "Ticket creado: {$ticket->codigo} - {$ticket->asunto}",
+                $ticket->id,
+                null,
+                $ticket->toArray()
+            );
+
             return redirect()
                 ->route('tickets.show', $ticket)
                 ->with('success', 'Ticket creado exitosamente. Código: ' . $ticket->codigo);
@@ -201,6 +210,8 @@ class TicketController extends Controller
             'solucion' => 'nullable|string',
         ]);
 
+        $oldValues = $ticket->toArray();
+
         try {
             $dataToUpdate = [
                 'asunto' => $validated['asunto'],
@@ -224,6 +235,15 @@ class TicketController extends Controller
             }
 
             $ticket->update($dataToUpdate);
+
+            AuditLog::log(
+                'update',
+                'tickets',
+                "Ticket actualizado: {$ticket->codigo}",
+                $ticket->id,
+                $oldValues,
+                $ticket->fresh()->toArray()
+            );
 
             return redirect()
                 ->route('tickets.show', $ticket)

@@ -62,6 +62,7 @@
                                 <tr>
                                     <th>Código</th>
                                     <th>Nombre</th>
+                                    <th>Usuarios</th>
                                     <th>Estado</th>
                                     <th>Acciones</th>
                                 </tr>
@@ -72,6 +73,11 @@
                                         <td><code>{{ $dependencia->codigo }}</code></td>
                                         <td>{{ $dependencia->nombre }}</td>
                                         <td>
+                                            <span class="badge badge-info">
+                                                {{ $dependencia->users_count ?? 0 }} {{ Str::plural('usuario', $dependencia->users_count ?? 0) }}
+                                            </span>
+                                        </td>
+                                        <td>
                                             @if($dependencia->activo)
                                                 <span class="badge badge-success">Activo</span>
                                             @else
@@ -79,7 +85,9 @@
                                             @endif
                                         </td>
                                         <td>
-                                            <a href="{{ route('dependencias.show', $dependencia) }}" class="btn btn-sm btn-info">
+                                            <a href="{{ route('dependencias.show', $dependencia) }}" 
+                                               class="btn btn-sm btn-info"
+                                               title="Ver detalle">
                                                 <i class="fas fa-eye"></i>
                                             </a>
                                         </td>
@@ -92,68 +100,84 @@
             @endif
         </div>
 
-        {{-- Panel Lateral --}}
+        {{-- Panel Lateral con Logo --}}
         <div class="col-md-4">
-            {{-- Acciones --}}
+            {{-- Logo de la Unidad Académica --}}
             <div class="card">
-                <div class="card-header bg-secondary">
-                    <h3 class="card-title"><i class="fas fa-cogs"></i> Acciones</h3>
+                <div class="card-header bg-info">
+                    <h3 class="card-title"><i class="fas fa-image"></i> Logo</h3>
                 </div>
-                <div class="card-body">
-                    @can('users.edit')
-                        <a href="{{ route('unidades-academicas.edit', $unidadesAcademica) }}" class="btn btn-primary btn-block">
-                            <i class="fas fa-edit"></i> Editar
-                        </a>
-
-                        <form action="{{ route('unidades-academicas.cambiar-estado', $unidadesAcademica) }}" method="POST" class="mt-2">
-                            @csrf
-                            <button type="submit" class="btn btn-{{ $unidadesAcademica->activo ? 'warning' : 'success' }} btn-block">
-                                <i class="fas fa-{{ $unidadesAcademica->activo ? 'ban' : 'check' }}"></i> 
-                                {{ $unidadesAcademica->activo ? 'Desactivar' : 'Activar' }}
-                            </button>
-                        </form>
-                    @endcan
-
-                    @can('users.delete')
-                        @if($unidadesAcademica->dependencias->count() == 0)
-                            <hr>
-                            <button type="button" class="btn btn-danger btn-block" onclick="confirmarEliminacion()">
-                                <i class="fas fa-trash"></i> Eliminar
-                            </button>
-                            <form id="form-delete" action="{{ route('unidades-academicas.destroy', $unidadesAcademica) }}" method="POST" style="display: none;">
-                                @csrf
-                                @method('DELETE')
-                            </form>
-                        @endif
-                    @endcan
-
-                    <hr>
-                    <a href="{{ route('unidades-academicas.index') }}" class="btn btn-secondary btn-block">
-                        <i class="fas fa-arrow-left"></i> Volver al Listado
-                    </a>
+                <div class="card-body text-center">
+                    @if($unidadesAcademica->logo)
+                        <img src="{{ asset($unidadesAcademica->logo) }}" 
+                             alt="Logo {{ $unidadesAcademica->nombre }}" 
+                             class="img-fluid img-thumbnail"
+                             style="max-width: 200px;">
+                        <p class="mt-3 mb-0 small text-muted">
+                            <i class="fas fa-info-circle"></i> {{ $unidadesAcademica->logo }}
+                        </p>
+                    @else
+                        <div class="text-muted py-5">
+                            <i class="fas fa-image fa-5x mb-3"></i>
+                            <p>No hay logo asignado</p>
+                            <a href="{{ route('unidades-academicas.edit', $unidadesAcademica) }}" 
+                               class="btn btn-sm btn-primary">
+                                <i class="fas fa-upload"></i> Subir Logo
+                            </a>
+                        </div>
+                    @endif
                 </div>
             </div>
 
-            {{-- Estadísticas --}}
+            {{-- Acciones --}}
             <div class="card">
-                <div class="card-header bg-info">
-                    <h3 class="card-title"><i class="fas fa-chart-bar"></i> Estadísticas</h3>
+                <div class="card-header bg-warning">
+                    <h3 class="card-title"><i class="fas fa-cogs"></i> Acciones</h3>
                 </div>
                 <div class="card-body">
-                    <div class="info-box bg-primary">
-                        <span class="info-box-icon"><i class="fas fa-building"></i></span>
-                        <div class="info-box-content">
-                            <span class="info-box-text">Dependencias</span>
-                            <span class="info-box-number">{{ $unidadesAcademica->dependencias->count() }}</span>
-                        </div>
-                    </div>
+                    <div class="d-grid gap-2">
+                        @can('users.edit')
+                            <a href="{{ route('unidades-academicas.edit', $unidadesAcademica) }}" 
+                               class="btn btn-warning btn-block mb-2">
+                                <i class="fas fa-edit"></i> Editar
+                            </a>
+                        @endcan
 
-                    <div class="info-box bg-success">
-                        <span class="info-box-icon"><i class="fas fa-check"></i></span>
-                        <div class="info-box-content">
-                            <span class="info-box-text">Activas</span>
-                            <span class="info-box-number">{{ $unidadesAcademica->dependencias->where('activo', true)->count() }}</span>
-                        </div>
+                        @can('users.edit')
+                            <form action="{{ route('unidades-academicas.cambiar-estado', $unidadesAcademica) }}" 
+                                  method="POST" 
+                                  class="mb-2">
+                                @csrf
+                                @if($unidadesAcademica->activo)
+                                    <button type="submit" class="btn btn-secondary btn-block">
+                                        <i class="fas fa-ban"></i> Desactivar
+                                    </button>
+                                @else
+                                    <button type="submit" class="btn btn-success btn-block">
+                                        <i class="fas fa-check"></i> Activar
+                                    </button>
+                                @endif
+                            </form>
+                        @endcan
+
+                        <a href="{{ route('unidades-academicas.index') }}" 
+                           class="btn btn-secondary btn-block">
+                            <i class="fas fa-arrow-left"></i> Volver
+                        </a>
+
+                        @can('users.delete')
+                            @if($unidadesAcademica->dependencias->count() == 0)
+                                <form action="{{ route('unidades-academicas.destroy', $unidadesAcademica) }}" 
+                                      method="POST"
+                                      onsubmit="return confirm('¿Está seguro de eliminar esta unidad académica?');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-danger btn-block">
+                                        <i class="fas fa-trash"></i> Eliminar
+                                    </button>
+                                </form>
+                            @endif
+                        @endcan
                     </div>
                 </div>
             </div>
@@ -163,20 +187,4 @@
 
 @section('css')
     <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
-    <style>
-        .badge-lg {
-            font-size: 1rem;
-            padding: 0.5rem 0.75rem;
-        }
-    </style>
-@stop
-
-@section('js')
-<script>
-function confirmarEliminacion() {
-    if (confirm('¿Está seguro de eliminar esta unidad académica?\n\nEsta acción no se puede deshacer.')) {
-        document.getElementById('form-delete').submit();
-    }
-}
-</script>
 @stop

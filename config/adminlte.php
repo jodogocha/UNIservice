@@ -10,7 +10,7 @@ return [
 
     'title' => 'UNIService',
     'title_prefix' => '',
-    'title_postfix' => ' | Facultad de Humanidades',
+    'title_postfix' => '',
 
     /*
     |--------------------------------------------------------------------------
@@ -38,11 +38,11 @@ return [
     */
 
     'logo' => '<b>UNI</b>Service',
-    'logo_img' => 'images/logos/humanidades.png',
+    'logo_img' => 'images/logos/uni.png',  // ← Valor por defecto
     'logo_img_class' => 'brand-image elevation-3',
     'logo_img_xl' => null,
     'logo_img_xl_class' => 'brand-image-xs',
-    'logo_img_alt' => 'Logo Facultad de Humanidades',
+    'logo_img_alt' => 'Logo de la UNI',  // ← Valor por defecto
 
     /*
     |--------------------------------------------------------------------------
@@ -53,8 +53,8 @@ return [
     'auth_logo' => [
         'enabled' => true,
         'img' => [
-            'path' => 'images/logos/humanidades.png',
-            'alt' => 'Logo Facultad de Humanidades',
+            'path' => 'images/logos/uni.png',
+            'alt' => 'Logo de la UNI',
             'class' => 'elevation-3',
             'width' => 150,
             'height' => 150,
@@ -71,7 +71,7 @@ return [
         'enabled' => true,
         'mode' => 'fullscreen',
         'img' => [
-            'path' => 'images/logos/humanidades.png',
+            'path' => 'images/logos/uni.png',  // ← Valor por defecto
             'alt' => 'Cargando...',
             'effect' => 'animation__shake',
             'width' => 60,
@@ -328,7 +328,7 @@ return [
         ],
         [
             'text' => 'Auditoría',
-            'url' => '#',
+            'route' => 'audit.index',
             'icon' => 'fas fa-fw fa-history',
             'can' => 'audit.view',
         ],

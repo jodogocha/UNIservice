@@ -11,9 +11,15 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // Registrar aliases de middleware existentes
         $middleware->alias([
             'role' => \App\Http\Middleware\CheckRole::class,
             'permission' => \App\Http\Middleware\CheckPermission::class,
+        ]);
+        
+        // Agregar el middleware del logo al grupo web
+        $middleware->web(append: [
+            \App\Http\Middleware\ConfigureAdminLteLogo::class,
         ]);
     })
     ->withProviders([

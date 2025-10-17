@@ -24,32 +24,49 @@ class TicketController extends Controller
         }
 
         // Filtro por estado
-        if ($request->has('estado') && $request->estado !== '') {
+        if ($request->filled('estado')) {
             $query->where('estado', $request->estado);
         }
 
         // Filtro por prioridad
-        if ($request->has('prioridad') && $request->prioridad !== '') {
+        if ($request->filled('prioridad')) {
             $query->where('prioridad', $request->prioridad);
         }
 
         // Filtro por tipo de servicio
-        if ($request->has('tipo_servicio') && $request->tipo_servicio !== '') {
+        if ($request->filled('tipo_servicio')) {
             $query->where('tipo_servicio', $request->tipo_servicio);
         }
 
+        // Filtro por dependencia
+        if ($request->filled('dependencia')) {
+            $query->where('dependencia_id', $request->dependencia);
+        }
+
+        // Filtro por técnico asignado
+        if ($request->filled('asignado')) {
+            $query->where('asignado_a', $request->asignado);
+        }
+
         // Búsqueda por código o asunto
-        if ($request->has('buscar') && $request->buscar !== '') {
+        if ($request->filled('buscar')) {
             $buscar = $request->buscar;
             $query->where(function ($q) use ($buscar) {
                 $q->where('codigo', 'LIKE', "%{$buscar}%")
-                ->orWhere('asunto', 'LIKE', "%{$buscar}%");
+                  ->orWhere('asunto', 'LIKE', "%{$buscar}%")
+                  ->orWhere('descripcion', 'LIKE', "%{$buscar}%");
             });
         }
 
-        $tickets = $query->orderBy('created_at', 'desc')->paginate(15);
+        $tickets = $query->orderBy('created_at', 'desc')->paginate(15)->appends(request()->query());
+        
+        // Datos para los filtros
+        $dependencias = Dependencia::where('activo', true)->orderBy('nombre')->get();
+        $tecnicos = User::whereHas('roles', function($q) {
+            $q->whereIn('slug', ['admin', 'encargado-lab']);
+        })->where('activo', true)->get();
 
-        return view('tickets.index', compact('tickets'));
+        return view('tickets.index', compact('tickets', 'dependencias', 'tecnicos'));
     }
 
     /**

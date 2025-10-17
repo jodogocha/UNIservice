@@ -66,6 +66,19 @@
                     </div>
                     <div class="col-md-3">
                         <div class="form-group">
+                            <label for="unidad_academica">Unidad Académica:</label>
+                            <select class="form-control" id="unidad_academica" name="unidad_academica">
+                                <option value="">Todas</option>
+                                @foreach($unidadesAcademicas as $unidad)
+                                    <option value="{{ $unidad->id }}" {{ request('unidad_academica') == $unidad->id ? 'selected' : '' }}>
+                                        {{ $unidad->nombre }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
                             <label for="estado">Estado:</label>
                             <select class="form-control" id="estado" name="estado">
                                 <option value="">Todos</option>

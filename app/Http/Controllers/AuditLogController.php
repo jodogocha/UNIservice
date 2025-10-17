@@ -17,36 +17,36 @@ class AuditLogController extends Controller
         $query = AuditLog::with('user');
 
         // Filtro por usuario
-        if ($request->has('user_id') && $request->user_id !== '') {
+        if ($request->filled('user_id')) {
             $query->where('user_id', $request->user_id);
         }
 
         // Filtro por acción
-        if ($request->has('action') && $request->action !== '') {
+        if ($request->filled('action')) {
             $query->where('action', $request->action);
         }
 
         // Filtro por módulo
-        if ($request->has('module') && $request->module !== '') {
+        if ($request->filled('module')) {
             $query->where('module', $request->module);
         }
 
         // Filtro por fecha desde
-        if ($request->has('fecha_desde') && $request->fecha_desde !== '') {
+        if ($request->filled('fecha_desde')) {
             $query->whereDate('created_at', '>=', $request->fecha_desde);
         }
 
         // Filtro por fecha hasta
-        if ($request->has('fecha_hasta') && $request->fecha_hasta !== '') {
+        if ($request->filled('fecha_hasta')) {
             $query->whereDate('created_at', '<=', $request->fecha_hasta);
         }
 
         // Búsqueda por descripción
-        if ($request->has('buscar') && $request->buscar !== '') {
+        if ($request->filled('buscar')) {
             $query->where('description', 'LIKE', '%' . $request->buscar . '%');
         }
 
-        $logs = $query->orderBy('created_at', 'desc')->paginate(20);
+        $logs = $query->orderBy('created_at', 'desc')->paginate(20)->appends(request()->query());
 
         // Obtener usuarios para el filtro
         $usuarios = User::where('activo', true)->orderBy('name')->get();

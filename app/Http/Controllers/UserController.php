@@ -20,19 +20,24 @@ class UserController extends Controller
         $query = User::with(['roles', 'dependencia', 'unidadAcademica']);
 
         // Filtro por estado
-        if ($request->has('estado') && $request->estado !== '') {
+        if ($request->filled('estado')) {
             $query->where('activo', $request->estado);
         }
 
         // Filtro por rol
-        if ($request->has('rol') && $request->rol !== '') {
+        if ($request->filled('rol')) {
             $query->whereHas('roles', function ($q) use ($request) {
                 $q->where('roles.id', $request->rol);
             });
         }
 
-        // Búsqueda por nombre, apellido o email
-        if ($request->has('buscar') && $request->buscar !== '') {
+        // Filtro por unidad académica
+        if ($request->filled('unidad_academica')) {
+            $query->where('unidad_academica_id', $request->unidad_academica);
+        }
+
+        // Búsqueda por nombre, apellido, email o documento
+        if ($request->filled('buscar')) {
             $buscar = $request->buscar;
             $query->where(function ($q) use ($buscar) {
                 $q->where('name', 'LIKE', "%{$buscar}%")
@@ -42,10 +47,11 @@ class UserController extends Controller
             });
         }
 
-        $usuarios = $query->orderBy('created_at', 'desc')->paginate(15);
+        $usuarios = $query->orderBy('created_at', 'desc')->paginate(15)->appends(request()->query());
         $roles = Role::all();
+        $unidadesAcademicas = UnidadAcademica::where('activo', true)->orderBy('nombre')->get();
 
-        return view('usuarios.index', compact('usuarios', 'roles'));
+        return view('usuarios.index', compact('usuarios', 'roles', 'unidadesAcademicas'));
     }
 
     /**

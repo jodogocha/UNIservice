@@ -9,19 +9,33 @@ use Illuminate\Support\Facades\Storage;
 class UnidadAcademicaController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Listar todas las unidades académicas
      */
-    public function index()
+    public function index(Request $request)
     {
-        $unidades = UnidadAcademica::withCount('dependencias')
-            ->orderBy('nombre')
-            ->paginate(10);
+        $query = UnidadAcademica::withCount('dependencias');
+
+        // Filtro por estado
+        if ($request->filled('estado')) {
+            $query->where('activo', $request->estado);
+        }
+
+        // Búsqueda por nombre o código
+        if ($request->filled('buscar')) {
+            $buscar = $request->buscar;
+            $query->where(function($q) use ($buscar) {
+                $q->where('nombre', 'LIKE', "%{$buscar}%")
+                  ->orWhere('codigo', 'LIKE', "%{$buscar}%");
+            });
+        }
+
+        $unidades = $query->orderBy('nombre')->paginate(15)->appends(request()->query());
 
         return view('unidades-academicas.index', compact('unidades'));
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Mostrar formulario de creación
      */
     public function create()
     {
@@ -29,28 +43,38 @@ class UnidadAcademicaController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Guardar nueva unidad académica
      */
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nombre' => 'required|string|max:255',
-            'codigo' => 'required|string|max:20|unique:unidades_academicas,codigo',
+            'nombre' => 'required|string|max:255|unique:unidades_academicas,nombre',
+            'codigo' => 'required|string|max:50|unique:unidades_academicas,codigo',
             'descripcion' => 'nullable|string',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'activo' => 'boolean',
+        ], [
+            'nombre.required' => 'El nombre es obligatorio',
+            'nombre.unique' => 'Este nombre ya está registrado',
+            'codigo.required' => 'El código es obligatorio',
+            'codigo.unique' => 'Este código ya está registrado',
+            'logo.image' => 'El archivo debe ser una imagen',
+            'logo.mimes' => 'La imagen debe ser de tipo: jpeg, png, jpg, gif',
+            'logo.max' => 'La imagen no debe superar los 2MB',
         ]);
 
         try {
-            $data = $validated;
-            
+            $data = [
+                'nombre' => $validated['nombre'],
+                'codigo' => $validated['codigo'],
+                'descripcion' => $validated['descripcion'] ?? null,
+                'activo' => $request->has('activo'),
+            ];
+
             // Manejar la subida del logo
             if ($request->hasFile('logo')) {
                 $logoPath = $request->file('logo')->store('logos', 'public');
                 $data['logo'] = 'storage/' . $logoPath;
             }
-
-            $data['activo'] = $request->has('activo');
 
             UnidadAcademica::create($data);
 
@@ -65,19 +89,19 @@ class UnidadAcademicaController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Mostrar detalle de la unidad académica
      */
     public function show(UnidadAcademica $unidadesAcademica)
     {
         $unidadesAcademica->load(['dependencias' => function($query) {
             $query->withCount('users');
         }]);
-        
+
         return view('unidades-academicas.show', compact('unidadesAcademica'));
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Mostrar formulario de edición
      */
     public function edit(UnidadAcademica $unidadesAcademica)
     {
@@ -85,21 +109,33 @@ class UnidadAcademicaController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Actualizar unidad académica
      */
     public function update(Request $request, UnidadAcademica $unidadesAcademica)
     {
         $validated = $request->validate([
-            'nombre' => 'required|string|max:255',
-            'codigo' => 'required|string|max:20|unique:unidades_academicas,codigo,' . $unidadesAcademica->id,
+            'nombre' => 'required|string|max:255|unique:unidades_academicas,nombre,' . $unidadesAcademica->id,
+            'codigo' => 'required|string|max:50|unique:unidades_academicas,codigo,' . $unidadesAcademica->id,
             'descripcion' => 'nullable|string',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'activo' => 'boolean',
+        ], [
+            'nombre.required' => 'El nombre es obligatorio',
+            'nombre.unique' => 'Este nombre ya está registrado',
+            'codigo.required' => 'El código es obligatorio',
+            'codigo.unique' => 'Este código ya está registrado',
+            'logo.image' => 'El archivo debe ser una imagen',
+            'logo.mimes' => 'La imagen debe ser de tipo: jpeg, png, jpg, gif',
+            'logo.max' => 'La imagen no debe superar los 2MB',
         ]);
 
         try {
-            $data = $validated;
-            
+            $data = [
+                'nombre' => $validated['nombre'],
+                'codigo' => $validated['codigo'],
+                'descripcion' => $validated['descripcion'] ?? null,
+                'activo' => $request->has('activo'),
+            ];
+
             // Manejar la subida del logo
             if ($request->hasFile('logo')) {
                 // Eliminar el logo anterior si existe
@@ -111,8 +147,6 @@ class UnidadAcademicaController extends Controller
                 $logoPath = $request->file('logo')->store('logos', 'public');
                 $data['logo'] = 'storage/' . $logoPath;
             }
-
-            $data['activo'] = $request->has('activo');
 
             $unidadesAcademica->update($data);
 
@@ -127,7 +161,7 @@ class UnidadAcademicaController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Eliminar unidad académica
      */
     public function destroy(UnidadAcademica $unidadesAcademica)
     {
@@ -150,7 +184,7 @@ class UnidadAcademicaController extends Controller
     }
 
     /**
-     * Change the status of the academic unit
+     * Cambiar estado de la unidad académica
      */
     public function cambiarEstado(UnidadAcademica $unidadesAcademica)
     {

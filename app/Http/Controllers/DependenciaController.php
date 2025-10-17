@@ -16,21 +16,25 @@ class DependenciaController extends Controller
         $query = Dependencia::with('unidadAcademica')->withCount('users');
 
         // Filtro por unidad académica
-        if ($request->has('unidad_academica') && $request->unidad_academica !== '') {
+        if ($request->filled('unidad_academica')) {
             $query->where('unidad_academica_id', $request->unidad_academica);
         }
 
         // Filtro por estado
-        if ($request->has('estado') && $request->estado !== '') {
+        if ($request->filled('estado')) {
             $query->where('activo', $request->estado);
         }
 
-        // Búsqueda por nombre
-        if ($request->has('buscar') && $request->buscar !== '') {
-            $query->where('nombre', 'LIKE', '%' . $request->buscar . '%');
+        // Búsqueda por nombre o código
+        if ($request->filled('buscar')) {
+            $buscar = $request->buscar;
+            $query->where(function($q) use ($buscar) {
+                $q->where('nombre', 'LIKE', "%{$buscar}%")
+                  ->orWhere('codigo', 'LIKE', "%{$buscar}%");
+            });
         }
 
-        $dependencias = $query->orderBy('nombre')->paginate(15);
+        $dependencias = $query->orderBy('nombre')->paginate(15)->appends(request()->query());
         $unidadesAcademicas = UnidadAcademica::where('activo', true)->orderBy('nombre')->get();
 
         return view('dependencias.index', compact('dependencias', 'unidadesAcademicas'));
@@ -69,7 +73,7 @@ class DependenciaController extends Controller
                 'codigo' => $validated['codigo'],
                 'unidad_academica_id' => $validated['unidad_academica_id'],
                 'descripcion' => $validated['descripcion'] ?? null,
-                'activo' => $request->has('activo') ? true : false,
+                'activo' => $request->has('activo'),
             ]);
 
             return redirect()
@@ -125,7 +129,7 @@ class DependenciaController extends Controller
                 'codigo' => $validated['codigo'],
                 'unidad_academica_id' => $validated['unidad_academica_id'],
                 'descripcion' => $validated['descripcion'] ?? null,
-                'activo' => $request->has('activo') ? true : false,
+                'activo' => $request->has('activo'),
             ]);
 
             return redirect()
@@ -143,7 +147,7 @@ class DependenciaController extends Controller
      */
     public function destroy(Dependencia $dependencia)
     {
-        // No permitir eliminar si tiene usuarios
+        // No permitir eliminar si tiene usuarios asociados
         if ($dependencia->users()->count() > 0) {
             return back()->with('error', 'No se puede eliminar una dependencia que tiene usuarios asociados');
         }

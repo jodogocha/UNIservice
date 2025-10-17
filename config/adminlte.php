@@ -231,7 +231,7 @@ return [
         
         [
             'text' => 'Usuarios',
-            'url' => '#',
+            'url' => 'usuarios.index',
             'icon' => 'fas fa-fw fa-users',
             'can' => 'users.view',
         ],

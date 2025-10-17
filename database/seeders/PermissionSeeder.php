@@ -4,68 +4,49 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\Permission;
-use App\Models\Role;
+use Illuminate\Support\Facades\DB;
 
 class PermissionSeeder extends Seeder
 {
     public function run(): void
     {
         $permissions = [
-            // Gestión de Tickets
-            ['nombre' => 'Crear Tickets', 'slug' => 'tickets.create'],
-            ['nombre' => 'Ver Tickets', 'slug' => 'tickets.view'],
-            ['nombre' => 'Ver Todos los Tickets', 'slug' => 'tickets.view-all'],
-            ['nombre' => 'Editar Tickets', 'slug' => 'tickets.edit'],
-            ['nombre' => 'Eliminar Tickets', 'slug' => 'tickets.delete'],
-            ['nombre' => 'Marcar Ticket como Listo', 'slug' => 'tickets.mark-ready'],
-            ['nombre' => 'Cerrar Ticket', 'slug' => 'tickets.close'],
+            // Permisos de Tickets
+            ['nombre' => 'Ver tickets', 'slug' => 'tickets.view', 'descripcion' => 'Ver sus propios tickets'],
+            ['nombre' => 'Ver todos los tickets', 'slug' => 'tickets.view-all', 'descripcion' => 'Ver todos los tickets del sistema'],
+            ['nombre' => 'Crear tickets', 'slug' => 'tickets.create', 'descripcion' => 'Crear nuevos tickets'],
+            ['nombre' => 'Editar tickets', 'slug' => 'tickets.edit', 'descripcion' => 'Editar tickets'],
+            ['nombre' => 'Eliminar tickets', 'slug' => 'tickets.delete', 'descripcion' => 'Eliminar tickets'],
+            ['nombre' => 'Marcar ticket listo', 'slug' => 'tickets.mark-ready', 'descripcion' => 'Marcar tickets como listos'],
+            ['nombre' => 'Cerrar tickets', 'slug' => 'tickets.close', 'descripcion' => 'Cerrar y finalizar tickets'],
             
-            // Gestión de Usuarios
-            ['nombre' => 'Crear Usuarios', 'slug' => 'users.create'],
-            ['nombre' => 'Ver Usuarios', 'slug' => 'users.view'],
-            ['nombre' => 'Editar Usuarios', 'slug' => 'users.edit'],
-            ['nombre' => 'Eliminar Usuarios', 'slug' => 'users.delete'],
+            // Permisos de Usuarios
+            ['nombre' => 'Ver usuarios', 'slug' => 'users.view', 'descripcion' => 'Ver listado de usuarios'],
+            ['nombre' => 'Crear usuarios', 'slug' => 'users.create', 'descripcion' => 'Crear nuevos usuarios'],
+            ['nombre' => 'Editar usuarios', 'slug' => 'users.edit', 'descripcion' => 'Editar usuarios existentes'],
+            ['nombre' => 'Eliminar usuarios', 'slug' => 'users.delete', 'descripcion' => 'Eliminar usuarios del sistema'],
             
-            // Auditoría
-            ['nombre' => 'Ver Auditoría', 'slug' => 'audit.view'],
+            // Permisos de Reportes
+            ['nombre' => 'Ver reportes', 'slug' => 'reports.view', 'descripcion' => 'Acceder a reportes y estadísticas'],
+            ['nombre' => 'Exportar reportes', 'slug' => 'reports.export', 'descripcion' => 'Exportar reportes a PDF/Excel'],
             
-            // Reportes
-            ['nombre' => 'Ver Reportes', 'slug' => 'reports.view'],
-            ['nombre' => 'Generar Reportes', 'slug' => 'reports.generate'],
+            // Permisos de Auditoría
+            ['nombre' => 'Ver auditoría', 'slug' => 'audit.view', 'descripcion' => 'Ver logs de auditoría del sistema'],
             
-            // Configuración
-            ['nombre' => 'Gestionar Configuración', 'slug' => 'config.manage'],
+            // Permisos de Configuración
+            ['nombre' => 'Gestionar configuración', 'slug' => 'config.manage', 'descripcion' => 'Administrar configuración del sistema'],
         ];
 
         foreach ($permissions as $permission) {
-            Permission::create($permission);
+            Permission::updateOrCreate(
+                ['slug' => $permission['slug']],
+                [
+                    'nombre' => $permission['nombre'],
+                    'descripcion' => $permission['descripcion']
+                ]
+            );
         }
 
-        // Asignar permisos a roles
-        $adminRole = Role::where('slug', 'admin')->first();
-        $encargadoRole = Role::where('slug', 'encargado-lab')->first();
-        $funcionarioRole = Role::where('slug', 'funcionario')->first();
-
-        // Admin tiene todos los permisos
-        $adminRole->permissions()->attach(Permission::all());
-
-        // Encargado de laboratorio
-        $encargadoRole->permissions()->attach(
-            Permission::whereIn('slug', [
-                'tickets.view-all',
-                'tickets.mark-ready',
-                'reports.view',
-                'reports.generate',
-            ])->get()
-        );
-
-        // Funcionario
-        $funcionarioRole->permissions()->attach(
-            Permission::whereIn('slug', [
-                'tickets.create',
-                'tickets.view',
-                'tickets.close',
-            ])->get()
-        );
+        $this->command->info('Permisos creados/actualizados correctamente');
     }
 }

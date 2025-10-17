@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\TicketController;
+use App\Http\Controllers\UserController;
 
 // Ruta raíz - redirige al login si no está autenticado
 Route::get('/', function () {
@@ -19,25 +20,26 @@ Route::middleware(['guest'])->group(function () {
     Route::post('/login', [LoginController::class, 'login']);
 });
 
-//Ruta de pureba del home
-Route::get('/test-home', function () {
-    return view('home', [
-        'user' => auth()->user(),
-        'ticketsPendientes' => 0,
-        'ticketsEnProceso' => 0,
-        'ticketsListos' => 0,
-        'ticketsFinalizados' => 0,
-        'usuariosActivos' => 0,
-        'ticketsRecientes' => collect()
-    ]);
-})->middleware('auth');
-
 // Logout (solo para autenticados)
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->middleware('auth');
 
 // Rutas protegidas - TODAS requieren autenticación
 Route::middleware(['auth'])->group(function () {
     
+    // Gestión de Usuarios
+    Route::middleware('permission:users.view')->group(function () {
+        Route::resource('usuarios', UserController::class);
+        
+        // Ruta para cambiar estado del usuario
+        Route::post('usuarios/{usuario}/cambiar-estado', [UserController::class, 'cambiarEstado'])
+            ->name('usuarios.cambiar-estado')
+            ->middleware('permission:users.edit');
+        
+        // Ruta AJAX para obtener dependencias
+        Route::get('api/dependencias/{unidadAcademica}', [UserController::class, 'getDependencias'])
+            ->name('api.dependencias');
+    });
+
     // Dashboard
     Route::get('/home', [HomeController::class, 'index'])->name('home');
     

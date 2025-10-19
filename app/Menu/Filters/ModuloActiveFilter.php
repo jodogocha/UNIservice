@@ -3,15 +3,17 @@
 namespace App\Menu\Filters;
 
 use Illuminate\Support\Facades\Auth;
-use JeroenNoten\LaravelAdminLte\Menu\Builder;
 use JeroenNoten\LaravelAdminLte\Menu\Filters\FilterInterface;
 
 class ModuloActiveFilter implements FilterInterface
 {
     /**
      * Transforma un item del menú
+     * 
+     * @param mixed $item
+     * @return mixed
      */
-    public function transform($item, Builder $builder)
+    public function transform($item)
     {
         // Si el item no tiene módulo definido, dejarlo pasar
         if (!isset($item['modulo'])) {
@@ -28,7 +30,7 @@ class ModuloActiveFilter implements FilterInterface
         }
 
         // Admin siempre tiene acceso a todos los módulos
-        if ($user->hasRole('admin')) {
+        if (method_exists($user, 'hasRole') && $user->hasRole('admin')) {
             return $item;
         }
 

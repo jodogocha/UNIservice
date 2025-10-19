@@ -435,8 +435,8 @@ return [
             ],
         ],
 
-        // Módulos Futuros (Inventario, Préstamos, Mantenimientos)
-        ['header' => 'MÓDULOS ADICIONALES'],
+        // Módulos Futuros (Inventario, Préstamos, Uso del Laboratorio)
+        ['header' => 'LABORATORIO'],
 
         [
             'text' => 'Inventario',
@@ -459,12 +459,12 @@ return [
         ],
 
         [
-            'text' => 'Mantenimientos',
+            'text' => 'Uso del Laboratorio',
             'icon' => 'fas fa-fw fa-calendar-check',
             'icon_color' => 'purple',
-            'active' => ['mantenimientos*'],
+            'active' => ['usos*'],
             'can' => 'users.view',
-            'modulo' => 'mantenimientos', // ← Validación de módulo
+            'modulo' => 'usos', // ← Validación de módulo
             'url' => '#',
         ],
     ],

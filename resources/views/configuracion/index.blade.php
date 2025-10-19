@@ -39,20 +39,16 @@
         </div>
         <div class="card-body">
             <form action="{{ route('configuracion.index') }}" method="GET">
-                <div class="row">
-                    <div class="col-md-12">
-                        <select class="form-control form-control-lg" id="unidad_id" name="unidad_id" onchange="this.form.submit()">
-                            <option value="">-- Seleccione una Unidad Académica --</option>
-                            @foreach($unidadesAcademicas as $unidad)
-                                <option value="{{ $unidad->id }}" 
-                                        {{ $unidadSeleccionada && $unidadSeleccionada->id == $unidad->id ? 'selected' : '' }}>
-                                    {{ $unidad->nombre }} ({{ $unidad->codigo }})
-                                    - {{ count($unidad->modulos_activos ?? []) }} módulos activos
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
+                <select class="form-control form-control-lg" id="unidad_id" name="unidad_id" onchange="this.form.submit()">
+                    <option value="">-- Seleccione una Unidad Académica --</option>
+                    @foreach($unidadesAcademicas as $unidad)
+                        <option value="{{ $unidad->id }}" 
+                                {{ $unidadSeleccionada && $unidadSeleccionada->id == $unidad->id ? 'selected' : '' }}>
+                            {{ $unidad->nombre }} ({{ $unidad->codigo }})
+                            - {{ count($unidad->modulos_activos ?? []) }} módulos activos
+                        </option>
+                    @endforeach
+                </select>
             </form>
         </div>
     </div>
@@ -61,11 +57,10 @@
         <div class="row">
             {{-- Configuración de Módulos --}}
             <div class="col-md-8">
-                {{-- Módulos Activos --}}
                 <div class="card card-primary">
                     <div class="card-header">
                         <h3 class="card-title">
-                            <i class="fas fa-puzzle-piece"></i> Módulos del Sistema para {{ $unidadSeleccionada->nombre }}
+                            <i class="fas fa-puzzle-piece"></i> Módulos del Sistema - {{ $unidadSeleccionada->nombre }}
                         </h3>
                     </div>
                     <form action="{{ route('configuracion.update-modulos') }}" method="POST">
@@ -75,58 +70,22 @@
                         <div class="card-body">
                             <div class="alert alert-info">
                                 <i class="fas fa-info-circle"></i>
-                                Selecciona los módulos que estarán disponibles para los usuarios de 
-                                <strong>{{ $unidadSeleccionada->nombre }}</strong>. Los módulos aparecerán en el menú lateral izquierdo.
-                            </div>
-
-                            {{-- TICKETS --}}
-                            <div class="mb-4">
-                                <h5 class="text-secondary">
-                                    <i class="fas fa-tag"></i> TICKETS
-                                </h5>
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="card {{ in_array('tickets', $unidadSeleccionada->modulos_activos ?? []) ? 'border-warning bg-light' : 'border-secondary' }}">
-                                            <div class="card-body">
-                                                <div class="d-flex align-items-center">
-                                                    <div class="custom-control custom-switch custom-switch-lg mr-3">
-                                                        <input type="checkbox" 
-                                                               class="custom-control-input" 
-                                                               id="modulo_tickets" 
-                                                               name="modulos[]" 
-                                                               value="tickets"
-                                                               {{ in_array('tickets', $unidadSeleccionada->modulos_activos ?? []) ? 'checked' : '' }}>
-                                                        <label class="custom-control-label" for="modulo_tickets"></label>
-                                                    </div>
-                                                    <div class="flex-grow-1">
-                                                        <div class="d-flex align-items-center">
-                                                            <i class="fas fa-ticket-alt fa-2x text-warning mr-3"></i>
-                                                            <div>
-                                                                <strong class="d-block">Gestión de Tickets</strong>
-                                                                <small class="text-muted">Sistema de tickets de servicio y soporte técnico</small>
-                                                                <span class="badge badge-info ml-2"><i class="fas fa-star"></i> Recomendado</span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                                Selecciona los módulos que estarán disponibles en el <strong>menú lateral izquierdo</strong> para 
+                                los usuarios de <strong>{{ $unidadSeleccionada->nombre }}</strong>.
                             </div>
 
                             {{-- ADMINISTRACIÓN --}}
                             <div class="mb-4">
-                                <h5 class="text-secondary">
-                                    <i class="fas fa-tag"></i> ADMINISTRACIÓN
+                                <h5 class="text-uppercase text-muted mb-3">
+                                    <i class="fas fa-chevron-right"></i> ADMINISTRACIÓN
                                 </h5>
                                 <div class="row">
                                     {{-- Usuarios --}}
-                                    <div class="col-md-6">
-                                        <div class="card {{ in_array('usuarios', $unidadSeleccionada->modulos_activos ?? []) ? 'border-primary bg-light' : 'border-secondary' }}">
+                                    <div class="col-md-6 mb-3">
+                                        <div class="card {{ in_array('usuarios', $unidadSeleccionada->modulos_activos ?? []) ? 'border-primary shadow-sm' : '' }}">
                                             <div class="card-body">
-                                                <div class="d-flex align-items-center">
-                                                    <div class="custom-control custom-switch custom-switch-lg mr-2">
+                                                <div class="d-flex align-items-start">
+                                                    <div class="custom-control custom-switch mr-3">
                                                         <input type="checkbox" 
                                                                class="custom-control-input" 
                                                                id="modulo_usuarios" 
@@ -136,14 +95,12 @@
                                                         <label class="custom-control-label" for="modulo_usuarios"></label>
                                                     </div>
                                                     <div class="flex-grow-1">
-                                                        <div class="d-flex align-items-center">
-                                                            <i class="fas fa-users fa-2x text-blue mr-2"></i>
-                                                            <div>
-                                                                <strong class="d-block">Gestión de Usuarios</strong>
-                                                                <small class="text-muted">Administración de usuarios y permisos</small>
-                                                                <span class="badge badge-info d-block mt-1"><i class="fas fa-star"></i> Recomendado</span>
-                                                            </div>
-                                                        </div>
+                                                        <i class="fas fa-users fa-2x text-blue mb-2"></i>
+                                                        <h6 class="mb-1"><strong>Gestión de Usuarios</strong></h6>
+                                                        <small class="text-muted d-block">Administración de usuarios y permisos</small>
+                                                        @if($modulosDisponibles['usuarios']['activo_por_defecto'])
+                                                            <span class="badge badge-info mt-2"><i class="fas fa-star"></i> Recomendado</span>
+                                                        @endif
                                                     </div>
                                                 </div>
                                             </div>
@@ -151,11 +108,11 @@
                                     </div>
 
                                     {{-- Dependencias --}}
-                                    <div class="col-md-6">
-                                        <div class="card {{ in_array('dependencias', $unidadSeleccionada->modulos_activos ?? []) ? 'border-primary bg-light' : 'border-secondary' }}">
+                                    <div class="col-md-6 mb-3">
+                                        <div class="card {{ in_array('dependencias', $unidadSeleccionada->modulos_activos ?? []) ? 'border-primary shadow-sm' : '' }}">
                                             <div class="card-body">
-                                                <div class="d-flex align-items-center">
-                                                    <div class="custom-control custom-switch custom-switch-lg mr-2">
+                                                <div class="d-flex align-items-start">
+                                                    <div class="custom-control custom-switch mr-3">
                                                         <input type="checkbox" 
                                                                class="custom-control-input" 
                                                                id="modulo_dependencias" 
@@ -165,14 +122,12 @@
                                                         <label class="custom-control-label" for="modulo_dependencias"></label>
                                                     </div>
                                                     <div class="flex-grow-1">
-                                                        <div class="d-flex align-items-center">
-                                                            <i class="fas fa-building fa-2x text-teal mr-2"></i>
-                                                            <div>
-                                                                <strong class="d-block">Gestión de Dependencias</strong>
-                                                                <small class="text-muted">Administración de departamentos y áreas</small>
-                                                                <span class="badge badge-info d-block mt-1"><i class="fas fa-star"></i> Recomendado</span>
-                                                            </div>
-                                                        </div>
+                                                        <i class="fas fa-building fa-2x text-teal mb-2"></i>
+                                                        <h6 class="mb-1"><strong>Gestión de Dependencias</strong></h6>
+                                                        <small class="text-muted d-block">Unidades Académicas y Dependencias</small>
+                                                        @if($modulosDisponibles['dependencias']['activo_por_defecto'])
+                                                            <span class="badge badge-info mt-2"><i class="fas fa-star"></i> Recomendado</span>
+                                                        @endif
                                                     </div>
                                                 </div>
                                             </div>
@@ -180,11 +135,11 @@
                                     </div>
 
                                     {{-- Auditoría --}}
-                                    <div class="col-md-6">
-                                        <div class="card {{ in_array('auditoria', $unidadSeleccionada->modulos_activos ?? []) ? 'border-primary bg-light' : 'border-secondary' }}">
+                                    <div class="col-md-6 mb-3">
+                                        <div class="card {{ in_array('auditoria', $unidadSeleccionada->modulos_activos ?? []) ? 'border-primary shadow-sm' : '' }}">
                                             <div class="card-body">
-                                                <div class="d-flex align-items-center">
-                                                    <div class="custom-control custom-switch custom-switch-lg mr-2">
+                                                <div class="d-flex align-items-start">
+                                                    <div class="custom-control custom-switch mr-3">
                                                         <input type="checkbox" 
                                                                class="custom-control-input" 
                                                                id="modulo_auditoria" 
@@ -194,32 +149,21 @@
                                                         <label class="custom-control-label" for="modulo_auditoria"></label>
                                                     </div>
                                                     <div class="flex-grow-1">
-                                                        <div class="d-flex align-items-center">
-                                                            <i class="fas fa-history fa-2x text-orange mr-2"></i>
-                                                            <div>
-                                                                <strong class="d-block">Auditoría del Sistema</strong>
-                                                                <small class="text-muted">Registro de actividades y cambios</small>
-                                                            </div>
-                                                        </div>
+                                                        <i class="fas fa-history fa-2x text-orange mb-2"></i>
+                                                        <h6 class="mb-1"><strong>Auditoría</strong></h6>
+                                                        <small class="text-muted d-block">Registro de actividades del sistema</small>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
 
-                            {{-- REPORTES --}}
-                            <div class="mb-4">
-                                <h5 class="text-secondary">
-                                    <i class="fas fa-tag"></i> REPORTES
-                                </h5>
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="card {{ in_array('reportes', $unidadSeleccionada->modulos_activos ?? []) ? 'border-danger bg-light' : 'border-secondary' }}">
+                                    {{-- Reportes --}}
+                                    <div class="col-md-6 mb-3">
+                                        <div class="card {{ in_array('reportes', $unidadSeleccionada->modulos_activos ?? []) ? 'border-primary shadow-sm' : '' }}">
                                             <div class="card-body">
-                                                <div class="d-flex align-items-center">
-                                                    <div class="custom-control custom-switch custom-switch-lg mr-3">
+                                                <div class="d-flex align-items-start">
+                                                    <div class="custom-control custom-switch mr-3">
                                                         <input type="checkbox" 
                                                                class="custom-control-input" 
                                                                id="modulo_reportes" 
@@ -229,14 +173,12 @@
                                                         <label class="custom-control-label" for="modulo_reportes"></label>
                                                     </div>
                                                     <div class="flex-grow-1">
-                                                        <div class="d-flex align-items-center">
-                                                            <i class="fas fa-chart-bar fa-2x text-danger mr-3"></i>
-                                                            <div>
-                                                                <strong class="d-block">Reportes y Estadísticas</strong>
-                                                                <small class="text-muted">Generación de reportes y análisis de datos</small>
-                                                                <span class="badge badge-info ml-2"><i class="fas fa-star"></i> Recomendado</span>
-                                                            </div>
-                                                        </div>
+                                                        <i class="fas fa-chart-bar fa-2x text-danger mb-2"></i>
+                                                        <h6 class="mb-1"><strong>Reportes</strong></h6>
+                                                        <small class="text-muted d-block">Reportes y estadísticas</small>
+                                                        @if($modulosDisponibles['reportes']['activo_por_defecto'])
+                                                            <span class="badge badge-info mt-2"><i class="fas fa-star"></i> Recomendado</span>
+                                                        @endif
                                                     </div>
                                                 </div>
                                             </div>
@@ -247,15 +189,42 @@
 
                             {{-- LABORATORIO --}}
                             <div class="mb-4">
-                                <h5 class="text-secondary">
-                                    <i class="fas fa-tag"></i> LABORATORIO
+                                <h5 class="text-uppercase text-muted mb-3">
+                                    <i class="fas fa-chevron-right"></i> LABORATORIO
                                 </h5>
                                 <div class="row">
-                                    {{-- Inventario --}}
-                                    <div class="col-md-4">
-                                        <div class="card {{ in_array('inventario', $unidadSeleccionada->modulos_activos ?? []) ? 'border-success bg-light' : 'border-secondary' }}">
+                                    {{-- Gestión de Tickets --}}
+                                    <div class="col-md-12 mb-3">
+                                        <div class="card {{ in_array('tickets', $unidadSeleccionada->modulos_activos ?? []) ? 'border-warning shadow-sm' : '' }}">
                                             <div class="card-body">
-                                                <div class="custom-control custom-switch custom-switch-lg">
+                                                <div class="d-flex align-items-start">
+                                                    <div class="custom-control custom-switch mr-3">
+                                                        <input type="checkbox" 
+                                                               class="custom-control-input" 
+                                                               id="modulo_tickets" 
+                                                               name="modulos[]" 
+                                                               value="tickets"
+                                                               {{ in_array('tickets', $unidadSeleccionada->modulos_activos ?? []) ? 'checked' : '' }}>
+                                                        <label class="custom-control-label" for="modulo_tickets"></label>
+                                                    </div>
+                                                    <div class="flex-grow-1">
+                                                        <i class="fas fa-ticket-alt fa-3x text-warning mb-2"></i>
+                                                        <h5 class="mb-1"><strong>Gestión de Tickets</strong></h5>
+                                                        <small class="text-muted d-block">Sistema de tickets de servicio y soporte técnico</small>
+                                                        @if($modulosDisponibles['tickets']['activo_por_defecto'])
+                                                            <span class="badge badge-info mt-2"><i class="fas fa-star"></i> Recomendado</span>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {{-- Inventario --}}
+                                    <div class="col-md-4 mb-3">
+                                        <div class="card {{ in_array('inventario', $unidadSeleccionada->modulos_activos ?? []) ? 'border-success shadow-sm' : '' }}">
+                                            <div class="card-body text-center">
+                                                <div class="custom-control custom-switch d-inline-block mb-2">
                                                     <input type="checkbox" 
                                                            class="custom-control-input" 
                                                            id="modulo_inventario" 
@@ -264,20 +233,20 @@
                                                            {{ in_array('inventario', $unidadSeleccionada->modulos_activos ?? []) ? 'checked' : '' }}>
                                                     <label class="custom-control-label" for="modulo_inventario"></label>
                                                 </div>
-                                                <div class="text-center mt-2">
-                                                    <i class="fas fa-laptop fa-3x text-success"></i>
-                                                    <strong class="d-block mt-2">Inventario</strong>
-                                                    <small class="text-muted">Control de equipos</small>
+                                                <div>
+                                                    <i class="fas fa-laptop fa-3x text-success mb-2"></i>
+                                                    <h6 class="mb-1"><strong>Inventario</strong></h6>
+                                                    <small class="text-muted d-block">Control de equipos</small>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
 
                                     {{-- Préstamos --}}
-                                    <div class="col-md-4">
-                                        <div class="card {{ in_array('prestamos', $unidadSeleccionada->modulos_activos ?? []) ? 'border-primary bg-light' : 'border-secondary' }}">
-                                            <div class="card-body">
-                                                <div class="custom-control custom-switch custom-switch-lg">
+                                    <div class="col-md-4 mb-3">
+                                        <div class="card {{ in_array('prestamos', $unidadSeleccionada->modulos_activos ?? []) ? 'border-primary shadow-sm' : '' }}">
+                                            <div class="card-body text-center">
+                                                <div class="custom-control custom-switch d-inline-block mb-2">
                                                     <input type="checkbox" 
                                                            class="custom-control-input" 
                                                            id="modulo_prestamos" 
@@ -286,20 +255,20 @@
                                                            {{ in_array('prestamos', $unidadSeleccionada->modulos_activos ?? []) ? 'checked' : '' }}>
                                                     <label class="custom-control-label" for="modulo_prestamos"></label>
                                                 </div>
-                                                <div class="text-center mt-2">
-                                                    <i class="fas fa-handshake fa-3x text-primary"></i>
-                                                    <strong class="d-block mt-2">Préstamos</strong>
-                                                    <small class="text-muted">Gestión de préstamos</small>
+                                                <div>
+                                                    <i class="fas fa-handshake fa-3x text-primary mb-2"></i>
+                                                    <h6 class="mb-1"><strong>Préstamos</strong></h6>
+                                                    <small class="text-muted d-block">Gestión de préstamos</small>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
 
                                     {{-- Uso del Laboratorio --}}
-                                    <div class="col-md-4">
-                                        <div class="card {{ in_array('usos', $unidadSeleccionada->modulos_activos ?? []) ? 'border-purple bg-light' : 'border-secondary' }}">
-                                            <div class="card-body">
-                                                <div class="custom-control custom-switch custom-switch-lg">
+                                    <div class="col-md-4 mb-3">
+                                        <div class="card {{ in_array('usos', $unidadSeleccionada->modulos_activos ?? []) ? 'border-purple shadow-sm' : '' }}">
+                                            <div class="card-body text-center">
+                                                <div class="custom-control custom-switch d-inline-block mb-2">
                                                     <input type="checkbox" 
                                                            class="custom-control-input" 
                                                            id="modulo_usos" 
@@ -308,10 +277,10 @@
                                                            {{ in_array('usos', $unidadSeleccionada->modulos_activos ?? []) ? 'checked' : '' }}>
                                                     <label class="custom-control-label" for="modulo_usos"></label>
                                                 </div>
-                                                <div class="text-center mt-2">
-                                                    <i class="fas fa-calendar-check fa-3x text-purple"></i>
-                                                    <strong class="d-block mt-2">Uso del Laboratorio</strong>
-                                                    <small class="text-muted">Reservas y horarios</small>
+                                                <div>
+                                                    <i class="fas fa-calendar-check fa-3x text-purple mb-2"></i>
+                                                    <h6 class="mb-1"><strong>Uso del Laboratorio</strong></h6>
+                                                    <small class="text-muted d-block">Reservas y horarios</small>
                                                 </div>
                                             </div>
                                         </div>
@@ -513,17 +482,6 @@
 @section('css')
     <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
     <style>
-        .custom-switch-lg .custom-control-label::before {
-            height: 1.5rem;
-            width: 2.75rem;
-        }
-        .custom-switch-lg .custom-control-label::after {
-            width: calc(1.5rem - 4px);
-            height: calc(1.5rem - 4px);
-        }
-        .custom-switch-lg .custom-control-input:checked ~ .custom-control-label::after {
-            transform: translateX(1.25rem);
-        }
         .badge-lg {
             font-size: 1rem;
             padding: 0.4rem 0.6rem;
@@ -533,6 +491,9 @@
         }
         .text-purple {
             color: #6f42c1 !important;
+        }
+        .shadow-sm {
+            box-shadow: 0 .125rem .25rem rgba(0,0,0,.075)!important;
         }
     </style>
 @stop

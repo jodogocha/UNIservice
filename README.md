@@ -1,6 +1,6 @@
 # UNIservice - Sistema de Gestión de Tickets
 
-Sistema de gestión de tickets de servicio para el Laboratorio de Informática de la Universidad Nacional de Itapúa.
+Sistema de gestión de tickets de servicio para el Departamento de Informática de las Facultades de la Universidad Nacional de Itapúa.
 
 ## 📋 Descripción
 

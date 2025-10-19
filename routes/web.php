@@ -10,6 +10,7 @@ use App\Http\Controllers\UnidadAcademicaController;
 use App\Http\Controllers\DependenciaController;
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\ConfiguracionController;
 
 // Ruta raíz - redirige al login si no está autenticado
 Route::get('/', function () {
@@ -94,6 +95,14 @@ Route::middleware(['auth'])->group(function () {
         // Ruta AJAX para obtener dependencias
         Route::get('api/dependencias/{unidadAcademica}', [UserController::class, 'getDependencias'])
             ->name('api.dependencias');
+    });
+
+    // Configuración del Sistema
+    Route::prefix('configuracion')->middleware('permission:config.manage')->group(function () {
+        Route::get('/', [ConfiguracionController::class, 'index'])->name('configuracion.index');
+        Route::post('/modulos', [ConfiguracionController::class, 'updateModulos'])->name('configuracion.update-modulos');
+        Route::post('/general', [ConfiguracionController::class, 'updateGeneral'])->name('configuracion.update-general');
+        Route::post('/avanzada', [ConfiguracionController::class, 'updateConfiguracion'])->name('configuracion.update-configuracion');
     });
 
     // ==================== RUTAS DE TICKETS ====================

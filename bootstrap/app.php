@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => \App\Http\Middleware\CheckRole::class,
             'permission' => \App\Http\Middleware\CheckPermission::class,
+            'modulo' => \App\Http\Middleware\CheckModuloActivo::class,
         ]);
         
         // Agregar el middleware del logo al grupo web

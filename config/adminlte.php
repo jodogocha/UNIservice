@@ -328,9 +328,15 @@ return [
         ],
         [
             'text' => 'Configuración',
-            'url' => '#',
-            'icon' => 'fas fa-fw fa-cog',
+            'icon' => 'fas fa-cogs',
             'can' => 'config.manage',
+            'submenu' => [
+                [
+                    'text' => 'General',
+                    'route' => 'configuracion.index',
+                    'icon' => 'fas fa-sliders-h',
+                ],
+            ],
         ],
 
         ['header' => 'REPORTES'],

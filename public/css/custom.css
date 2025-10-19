@@ -87,3 +87,104 @@
 .img-thumbnail {
     border-radius: 0.25rem; /* ← Bordes ligeramente redondeados pero no circulares */
 }
+
+/* ===================================
+   PAGINACIÓN PERSONALIZADA
+   =================================== */
+
+.pagination {
+    margin-bottom: 0;
+}
+
+.pagination .page-link {
+    color: #007bff;
+    border: 1px solid #dee2e6;
+    padding: 0.5rem 0.75rem;
+    margin: 0 2px;
+    border-radius: 0.25rem;
+    transition: all 0.3s ease;
+}
+
+.pagination .page-link:hover {
+    color: #0056b3;
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: white;
+    font-weight: bold;
+    box-shadow: 0 2px 8px rgba(0,123,255,0.3);
+}
+
+.pagination .page-item.disabled .page-link {
+    color: #6c757d;
+    pointer-events: none;
+    background-color: #fff;
+    border-color: #dee2e6;
+    opacity: 0.5;
+}
+
+.pagination .page-link i {
+    font-size: 0.875rem;
+}
+
+/* Tamaño pequeño */
+.pagination-sm .page-link {
+    padding: 0.375rem 0.6rem;
+    font-size: 0.875rem;
+}
+
+/* Tamaño grande */
+.pagination-lg .page-link {
+    padding: 0.75rem 1rem;
+    font-size: 1.125rem;
+}
+
+/* Información de paginación */
+.text-muted.small {
+    font-size: 0.875rem;
+    color: #6c757d !important;
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+    .pagination .page-link {
+        padding: 0.375rem 0.5rem;
+        font-size: 0.875rem;
+        margin: 0 1px;
+    }
+    
+    .pagination .page-link i {
+        font-size: 0.75rem;
+    }
+    
+    /* Ocultar texto en móvil, solo mostrar iconos */
+    .pagination .page-link:not(.active) {
+        font-size: 0;
+    }
+    
+    .pagination .page-link i {
+        font-size: 0.875rem;
+    }
+}
+
+/* Animación al cambiar de página */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.card-body {
+    animation: fadeIn 0.3s ease;
+}

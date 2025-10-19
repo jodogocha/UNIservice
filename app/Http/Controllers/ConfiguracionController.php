@@ -10,7 +10,7 @@ class ConfiguracionController extends Controller
     /**
      * Mostrar vista de configuración
      */
-    public function index()
+    public function index(Request $request)
     {
         $user = auth()->user();
         
@@ -19,10 +19,27 @@ class ConfiguracionController extends Controller
             abort(403, 'No tienes permisos para acceder a la configuración');
         }
         
-        $unidadAcademica = $user->unidadAcademica;
+        // Obtener todas las unidades académicas
+        $unidadesAcademicas = UnidadAcademica::with('dependencias', 'users')
+            ->where('activo', true)
+            ->orderBy('nombre')
+            ->get();
+        
+        // Obtener la unidad seleccionada (por defecto la del usuario)
+        $unidadSeleccionada = null;
+        if ($request->has('unidad_id')) {
+            $unidadSeleccionada = UnidadAcademica::findOrFail($request->unidad_id);
+        } else {
+            $unidadSeleccionada = $user->unidadAcademica;
+        }
+        
         $modulosDisponibles = UnidadAcademica::modulosDisponibles();
         
-        return view('configuracion.index', compact('unidadAcademica', 'modulosDisponibles'));
+        return view('configuracion.index', compact(
+            'unidadesAcademicas',
+            'unidadSeleccionada',
+            'modulosDisponibles'
+        ));
     }
 
     /**
@@ -36,13 +53,13 @@ class ConfiguracionController extends Controller
             abort(403, 'No tienes permisos para actualizar la configuración');
         }
         
-        $unidadAcademica = $user->unidadAcademica;
-        
         $validated = $request->validate([
+            'unidad_id' => 'required|exists:unidades_academicas,id',
             'modulos' => 'nullable|array',
             'modulos.*' => 'string',
         ]);
         
+        $unidadAcademica = UnidadAcademica::findOrFail($validated['unidad_id']);
         $modulosActivos = $validated['modulos'] ?? [];
         
         $unidadAcademica->update([
@@ -50,12 +67,12 @@ class ConfiguracionController extends Controller
         ]);
         
         return redirect()
-            ->route('configuracion.index')
-            ->with('success', 'Configuración de módulos actualizada correctamente');
+            ->route('configuracion.index', ['unidad_id' => $unidadAcademica->id])
+            ->with('success', "Configuración de módulos actualizada correctamente para {$unidadAcademica->nombre}");
     }
 
     /**
-     * Actualizar configuración general
+     * Actualizar configuración general de una unidad
      */
     public function updateGeneral(Request $request)
     {
@@ -65,14 +82,24 @@ class ConfiguracionController extends Controller
             abort(403, 'No tienes permisos para actualizar la configuración');
         }
         
-        $unidadAcademica = $user->unidadAcademica;
-        
         $validated = $request->validate([
+            'unidad_id' => 'required|exists:unidades_academicas,id',
             'nombre' => 'required|string|max:255',
-            'codigo' => 'required|string|max:50|unique:unidades_academicas,codigo,' . $unidadAcademica->id,
+            'codigo' => 'required|string|max:50',
             'descripcion' => 'nullable|string',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
+        
+        $unidadAcademica = UnidadAcademica::findOrFail($validated['unidad_id']);
+        
+        // Validar que el código sea único (excepto para la unidad actual)
+        $existeCodigo = UnidadAcademica::where('codigo', $validated['codigo'])
+            ->where('id', '!=', $unidadAcademica->id)
+            ->exists();
+            
+        if ($existeCodigo) {
+            return back()->withErrors(['codigo' => 'Este código ya está en uso por otra unidad académica.']);
+        }
         
         $data = [
             'nombre' => $validated['nombre'],
@@ -94,8 +121,8 @@ class ConfiguracionController extends Controller
         $unidadAcademica->update($data);
         
         return redirect()
-            ->route('configuracion.index')
-            ->with('success', 'Configuración general actualizada correctamente');
+            ->route('configuracion.index', ['unidad_id' => $unidadAcademica->id])
+            ->with('success', "Configuración general actualizada correctamente para {$unidadAcademica->nombre}");
     }
 
     /**
@@ -109,8 +136,11 @@ class ConfiguracionController extends Controller
             abort(403, 'No tienes permisos para actualizar la configuración');
         }
         
-        $unidadAcademica = $user->unidadAcademica;
+        $validated = $request->validate([
+            'unidad_id' => 'required|exists:unidades_academicas,id',
+        ]);
         
+        $unidadAcademica = UnidadAcademica::findOrFail($validated['unidad_id']);
         $configuracion = $unidadAcademica->configuracion ?? [];
         
         // Actualizar configuraciones específicas
@@ -131,7 +161,37 @@ class ConfiguracionController extends Controller
         ]);
         
         return redirect()
-            ->route('configuracion.index')
-            ->with('success', 'Configuración avanzada actualizada correctamente');
+            ->route('configuracion.index', ['unidad_id' => $unidadAcademica->id])
+            ->with('success', "Configuración avanzada actualizada correctamente para {$unidadAcademica->nombre}");
+    }
+
+    /**
+     * Copiar configuración de una unidad a otra
+     */
+    public function copiarConfiguracion(Request $request)
+    {
+        $user = auth()->user();
+        
+        if (!$user->hasRole('admin')) {
+            abort(403, 'No tienes permisos para copiar configuraciones');
+        }
+        
+        $validated = $request->validate([
+            'unidad_origen_id' => 'required|exists:unidades_academicas,id',
+            'unidad_destino_id' => 'required|exists:unidades_academicas,id|different:unidad_origen_id',
+        ]);
+        
+        $unidadOrigen = UnidadAcademica::findOrFail($validated['unidad_origen_id']);
+        $unidadDestino = UnidadAcademica::findOrFail($validated['unidad_destino_id']);
+        
+        // Copiar módulos activos y configuración
+        $unidadDestino->update([
+            'modulos_activos' => $unidadOrigen->modulos_activos,
+            'configuracion' => $unidadOrigen->configuracion,
+        ]);
+        
+        return redirect()
+            ->route('configuracion.index', ['unidad_id' => $unidadDestino->id])
+            ->with('success', "Configuración copiada exitosamente de {$unidadOrigen->nombre} a {$unidadDestino->nombre}");
     }
 }

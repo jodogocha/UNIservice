@@ -103,6 +103,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/modulos', [ConfiguracionController::class, 'updateModulos'])->name('configuracion.update-modulos');
         Route::post('/general', [ConfiguracionController::class, 'updateGeneral'])->name('configuracion.update-general');
         Route::post('/avanzada', [ConfiguracionController::class, 'updateConfiguracion'])->name('configuracion.update-configuracion');
+        Route::post('/copiar', [ConfiguracionController::class, 'copiarConfiguracion'])->name('configuracion.copiar');
     });
 
     // ==================== RUTAS DE TICKETS ====================

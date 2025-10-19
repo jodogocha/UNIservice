@@ -321,12 +321,6 @@ return [
         ],
         
         [
-            'text' => 'Reportes',
-            'url' => '#',
-            'icon' => 'fas fa-fw fa-chart-bar',
-            'can' => 'reports.view',
-        ],
-        [
             'text' => 'Auditoría',
             'route' => 'audit.index',
             'icon' => 'fas fa-fw fa-history',
@@ -337,6 +331,61 @@ return [
             'url' => '#',
             'icon' => 'fas fa-fw fa-cog',
             'can' => 'config.manage',
+        ],
+
+        ['header' => 'REPORTES'],
+
+        [
+            'text' => 'Reportes',
+            'icon' => 'fas fa-chart-bar',
+            'can' => 'reports.view',
+            'submenu' => [
+                [
+                    'text' => 'Centro de Reportes',
+                    'url' => 'reportes',
+                    'icon' => 'fas fa-home',
+                ],
+                [
+                    'text' => 'Trabajos por Usuario',
+                    'url' => 'reportes/trabajos-por-usuario',
+                    'icon' => 'fas fa-user-check',
+                ],
+                [
+                    'text' => 'Por Dependencia',
+                    'url' => 'reportes/solicitudes-por-dependencia',
+                    'icon' => 'fas fa-building',
+                ],
+                [
+                    'text' => 'Ranking Dependencias',
+                    'url' => 'reportes/ranking-dependencias',
+                    'icon' => 'fas fa-trophy',
+                ],
+                [
+                    'text' => 'Ranking Usuarios',
+                    'url' => 'reportes/ranking-usuarios',
+                    'icon' => 'fas fa-medal',
+                ],
+                [
+                    'text' => 'Por Horario',
+                    'url' => 'reportes/servicios-por-horario',
+                    'icon' => 'fas fa-clock',
+                ],
+                [
+                    'text' => 'Trabajos Asignados',
+                    'url' => 'reportes/trabajos-asignados',
+                    'icon' => 'fas fa-tasks',
+                ],
+                [
+                    'text' => 'Totales Mensuales',
+                    'url' => 'reportes/totales-mensuales',
+                    'icon' => 'fas fa-chart-line',
+                ],
+                [
+                    'text' => 'Totales Anuales',
+                    'url' => 'reportes/totales-anuales',
+                    'icon' => 'fas fa-chart-area',
+                ],
+            ],
         ],
     ],
 

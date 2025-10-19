@@ -63,6 +63,23 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware('permission:users.view')->group(function () {
         Route::resource('roles', RoleController::class);
     });
+
+    // Módulo de Reportes
+    Route::prefix('reportes')->middleware('permission:reports.view')->group(function () {
+        Route::get('/', [ReportController::class, 'index'])->name('reportes.index');
+        Route::get('/trabajos-por-usuario', [ReportController::class, 'trabajosPorUsuario'])->name('reportes.trabajos-usuario');
+        Route::get('/solicitudes-por-dependencia', [ReportController::class, 'solicitudesPorDependencia'])->name('reportes.solicitudes-dependencia');
+        Route::get('/ranking-dependencias', [ReportController::class, 'rankingDependencias'])->name('reportes.ranking-dependencias');
+        Route::get('/ranking-usuarios', [ReportController::class, 'rankingUsuarios'])->name('reportes.ranking-usuarios');
+        Route::get('/servicios-por-horario', [ReportController::class, 'serviciosPorHorario'])->name('reportes.servicios-horario');
+        Route::get('/trabajos-asignados', [ReportController::class, 'trabajosAsignados'])->name('reportes.trabajos-asignados');
+        Route::get('/totales-mensuales', [ReportController::class, 'totalesMensuales'])->name('reportes.totales-mensuales');
+        Route::get('/totales-anuales', [ReportController::class, 'totalesAnuales'])->name('reportes.totales-anuales');
+        
+        // Exportar PDF
+        Route::get('/exportar/{tipo}', [ReportController::class, 'exportarPDF'])->name('reportes.exportar-pdf')
+            ->middleware('permission:reports.export');
+    });
     
     // Gestión de Usuarios
     Route::middleware('permission:users.view')->group(function () {

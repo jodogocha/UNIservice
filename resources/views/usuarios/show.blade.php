@@ -171,7 +171,7 @@
                         <span class="info-box-icon"><i class="fas fa-ticket-alt"></i></span>
                         <div class="info-box-content">
                             <span class="info-box-text">Tickets Creados</span>
-                            <span class="info-box-number">{{ $usuario->tickets()->count() }}</span>
+                            <span class="info-box-number">{{ $ticketsCreados = $usuario->ticketsCreados->count() }}</span>
                         </div>
                     </div>
 
@@ -179,7 +179,7 @@
                         <span class="info-box-icon"><i class="fas fa-tasks"></i></span>
                         <div class="info-box-content">
                             <span class="info-box-text">Tickets Asignados</span>
-                            <span class="info-box-number">{{ $usuario->ticketsAsignados()->count() }}</span>
+                            <span class="info-box-number">{{ $ticketsAsignados = $usuario->ticketsAsignados->count() }}</span>
                         </div>
                     </div>
 

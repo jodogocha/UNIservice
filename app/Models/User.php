@@ -36,23 +36,66 @@ class User extends Authenticatable
         ];
     }
 
-    // Relaciones existentes...
+    // ============================================
+    // RELACIONES
+    // ============================================
+
+    /**
+     * Roles del usuario
+     */
     public function roles()
     {
         return $this->belongsToMany(Role::class, 'role_user');
     }
 
+    /**
+     * Dependencia del usuario
+     */
     public function dependencia()
     {
         return $this->belongsTo(Dependencia::class);
     }
 
+    /**
+     * Unidad Académica del usuario
+     */
     public function unidadAcademica()
     {
         return $this->belongsTo(UnidadAcademica::class);
     }
 
-    // Métodos existentes...
+    /**
+     * Tickets creados por el usuario (como solicitante)
+     */
+    public function ticketsCreados()
+    {
+        return $this->hasMany(Ticket::class, 'solicitante_id');
+    }
+
+    /**
+     * Tickets asignados al usuario (como técnico)
+     */
+    public function ticketsAsignados()
+    {
+        return $this->hasMany(Ticket::class, 'asignado_a');
+    }
+
+    /**
+     * Todos los tickets relacionados con el usuario
+     * (creados o asignados)
+     */
+    public function tickets()
+    {
+        return $this->ticketsCreados();
+    }
+
+    // ============================================
+    // MÉTODOS DE PERMISOS Y ROLES
+    // ============================================
+
+    /**
+     * Verificar si el usuario tiene un rol específico
+     */
     public function hasRole($role)
     {
         if (is_string($role)) {
@@ -61,6 +104,9 @@ class User extends Authenticatable
         return $this->roles->contains($role);
     }
 
+    /**
+     * Verificar si el usuario tiene un permiso específico
+     */
     public function hasPermission($permission)
     {
         foreach ($this->roles as $role) {
@@ -71,9 +117,24 @@ class User extends Authenticatable
         return false;
     }
 
+    // ============================================
+    // ACCESSORS (ATRIBUTOS CALCULADOS)
+    // ============================================
+
+    /**
+     * Nombre completo del usuario
+     */
     public function getNombreCompletoAttribute()
     {
         return "{$this->name} {$this->apellido}";
+    }
+
+    /**
+     * Obtener el primer rol del usuario
+     */
+    public function getRolPrincipalAttribute()
+    {
+        return $this->roles->first();
     }
 
     // ============================================
@@ -82,42 +143,56 @@ class User extends Authenticatable
 
     /**
      * Descripción del usuario para el menú de AdminLTE
-     * Este método es llamado por AdminLTE cuando usermenu_desc está habilitado
      */
     public function adminlte_desc()
     {
-        // Obtener el rol principal del usuario
         $rol = $this->roles->first();
-        
-        if ($rol) {
-            return $rol->nombre;
-        }
-        
-        return 'Usuario';
+        return $rol ? $rol->nombre : 'Usuario';
     }
 
     /**
      * URL de la imagen del usuario para AdminLTE
-     * Este método es opcional, solo si usermenu_image está habilitado
      */
     public function adminlte_image()
     {
-        // Puedes retornar una URL de Gravatar basada en el email
         return 'https://www.gravatar.com/avatar/' . md5(strtolower($this->email)) . '?s=50&d=mp';
-        
-        // O una imagen por defecto
-        // return asset('images/default-avatar.png');
     }
 
     /**
      * Título del perfil del usuario para AdminLTE
-     * Este método es opcional
      */
     public function adminlte_profile_url()
     {
-        // Si tienes una ruta de perfil, retornarla aquí
-        // return route('profile.show');
-        
-        return false; // Por ahora retornar false si no tienes perfil
+        return false;
+    }
+
+    // ============================================
+    // MÉTODOS DE ESTADÍSTICAS
+    // ============================================
+
+    /**
+     * Contar tickets creados por el usuario
+     */
+    public function totalTicketsCreados()
+    {
+        return $this->ticketsCreados()->count();
+    }
+
+    /**
+     * Contar tickets asignados al usuario
+     */
+    public function totalTicketsAsignados()
+    {
+        return $this->ticketsAsignados()->count();
+    }
+
+    /**
+     * Contar tickets pendientes asignados
+     */
+    public function ticketsPendientes()
+    {
+        return $this->ticketsAsignados()
+            ->whereIn('estado', ['pendiente', 'en_proceso'])
+            ->count();
     }
 }

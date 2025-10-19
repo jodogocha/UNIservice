@@ -31,17 +31,41 @@
                 <h4 class="login-box-msg"><b>UNI</b>Service</h4>
                 <p class="login-box-msg">Inicia sesión para continuar</p>
 
+                {{-- Mensajes de error y éxito --}}
+                @if ($errors->any())
+                    <div class="alert alert-danger alert-dismissible">
+                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                        @foreach ($errors->all() as $error)
+                            <p class="mb-0"><i class="icon fas fa-ban"></i> {{ $error }}</p>
+                        @endforeach
+                    </div>
+                @endif
+
+                @if (session('success'))
+                    <div class="alert alert-success alert-dismissible">
+                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                        <p class="mb-0"><i class="icon fas fa-check"></i> {{ session('success') }}</p>
+                    </div>
+                @endif
+
+                @if (session('status'))
+                    <div class="alert alert-info alert-dismissible">
+                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                        <p class="mb-0"><i class="icon fas fa-info"></i> {{ session('status') }}</p>
+                    </div>
+                @endif
+
                 {{-- Formulario de Login --}}
                 <form action="{{ route('login') }}" method="post">
                     @csrf
 
-                    {{-- Email --}}
+                    {{-- Email o Documento--}}
                     <div class="input-group mb-3">
-                        <input type="email" 
-                               name="email" 
-                               class="form-control @error('email') is-invalid @enderror" 
-                               placeholder="Correo electrónico"
-                               value="{{ old('email') }}"
+                        <input type="Text" 
+                               name="login" 
+                               class="form-control @error('login') is-invalid @enderror" 
+                               value="{{ old('login') }}" 
+                               placeholder="Email o Número de Documento"
                                required 
                                autofocus>
                         <div class="input-group-append">
@@ -49,10 +73,8 @@
                                 <span class="fas fa-envelope"></span>
                             </div>
                         </div>
-                        @error('email')
-                            <span class="invalid-feedback" role="alert">
-                                <strong>{{ $message }}</strong>
-                            </span>
+                        @error('login')
+                            <span class="invalid-feedback d-block">{{ $message }}</span>
                         @enderror
                     </div>
 
@@ -69,9 +91,7 @@
                             </div>
                         </div>
                         @error('password')
-                            <span class="invalid-feedback" role="alert">
-                                <strong>{{ $message }}</strong>
-                            </span>
+                            <span class="invalid-feedback d-block">{{ $message }}</span>
                         @enderror
                     </div>
 
@@ -87,6 +107,15 @@
                         </div>
                     </div>
 
+                    {{-- Información adicional --}}
+                    <hr>
+                    <div class="text-center text-muted">
+                        <small>
+                            <i class="fas fa-info-circle"></i> 
+                            Puedes iniciar sesión con tu <strong>email</strong> o <strong>número de documento</strong>
+                        </small>
+                    </div>
+
                     {{-- Submit Button --}}
                     <div class="row">
                         <div class="col-12">
@@ -94,6 +123,13 @@
                                 <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
                             </button>
                         </div>
+                    </div>
+
+                    {{-- Footer --}}
+                    <div class="text-center mt-3">
+                        <small class="text-muted">
+                            Universidad Nacional de Itapúa &copy; {{ date('Y') }}
+                        </small>
                     </div>
                 </form>
 
@@ -109,4 +145,12 @@
 
 @section('adminlte_css')
     <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
+    <script>
+        $(document).ready(function() {
+            // Auto-ocultar alertas después de 5 segundos
+            setTimeout(function() {
+                $('.alert').fadeOut('slow');
+            }, 5000);
+        });
+    </script>
 @stop

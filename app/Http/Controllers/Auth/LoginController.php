@@ -22,15 +22,25 @@ class LoginController extends Controller
 
     public function login(Request $request)
     {
+        // Validar que se proporcione el campo login (email o documento)
         $credentials = $request->validate([
-            'email' => 'required|email',
+            'login' => 'required|string',
             'password' => 'required',
         ], [
-            'email.required' => 'El email es obligatorio',
-            'email.email' => 'Debe ser un email válido',
+            'login.required' => 'El email o número de documento es obligatorio',
             'password.required' => 'La contraseña es obligatoria',
         ]);
 
+        // Determinar si el login es un email o un número de documento
+        $loginType = filter_var($request->login, FILTER_VALIDATE_EMAIL) ? 'email' : 'documento';
+
+        // Preparar las credenciales para la autenticación
+        $credentials = [
+            $loginType => $request->login,
+            'password' => $request->password,
+        ];
+
+        // Intentar autenticar
         if (Auth::attempt($credentials, $request->filled('remember'))) {
             $request->session()->regenerate();
             
@@ -38,8 +48,8 @@ class LoginController extends Controller
             if (!Auth::user()->activo) {
                 Auth::logout();
                 return back()->withErrors([
-                    'email' => 'Tu cuenta está inactiva. Contacta al administrador.',
-                ])->onlyInput('email');
+                    'login' => 'Tu cuenta está inactiva. Contacta al administrador.',
+                ])->onlyInput('login');
             }
 
             // Registrar en auditoría
@@ -58,12 +68,12 @@ class LoginController extends Controller
         AuditLog::log(
             'login-failed',
             'authentication',
-            'Intento de inicio de sesión fallido para: ' . $request->email
+            'Intento de inicio de sesión fallido para: ' . $request->login
         );
 
         return back()->withErrors([
-            'email' => 'Las credenciales no coinciden con nuestros registros.',
-        ])->onlyInput('email');
+            'login' => 'Las credenciales no coinciden con nuestros registros.',
+        ])->onlyInput('login');
     }
 
     public function logout(Request $request)

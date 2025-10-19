@@ -217,37 +217,7 @@ return [
             'icon_color' => 'cyan',
         ],
 
-        ['header' => 'TICKETS'],
-
-        // Menú de Tickets con validación de módulo
-        [
-            'text' => 'Gestión de Tickets',
-            'icon' => 'fas fa-fw fa-ticket-alt',
-            'icon_color' => 'yellow',
-            'active' => ['tickets*'],
-            'modulo' => 'tickets', // ← Validación de módulo
-            'submenu' => [
-                [
-                    'text' => 'Mis Tickets',
-                    'route' => 'tickets.mis-tickets',
-                    'icon' => 'fas fa-fw fa-user-clock',
-                    'can' => 'tickets.view',
-                ],
-                [
-                    'text' => 'Todos los Tickets',
-                    'route' => 'tickets.index',
-                    'icon' => 'fas fa-fw fa-list-alt',
-                    'can' => 'tickets.view-all',
-                ],
-                [
-                    'text' => 'Nuevo Ticket',
-                    'route' => 'tickets.create',
-                    'icon' => 'fas fa-fw fa-plus-circle',
-                    'icon_color' => 'green',
-                    'can' => 'tickets.create',
-                ],
-            ],
-        ],
+        ['header' => 'SISTEMA'],
 
         ['header' => 'ADMINISTRACIÓN', 'can' => 'users.view'],
 
@@ -358,85 +328,59 @@ return [
             'modulo' => 'auditoria', // ← Validación de módulo
         ],
 
-        // Configuración
-        [
-            'text' => 'Configuración',
-            'icon' => 'fas fa-fw fa-cog',
-            'icon_color' => 'gray',
-            'active' => ['configuracion*'],
-            'can' => 'config.manage',
-            'submenu' => [
-                [
-                    'text' => 'General',
-                    'route' => 'configuracion.index',
-                    'icon' => 'fas fa-sliders-h',
-                ],
-            ],
-        ],
-
-        ['header' => 'REPORTES', 'can' => 'reports.view'],
-
         // Menú de Reportes con validación de módulo
         [
             'text' => 'Reportes',
+            'route' => 'reportes.index',
             'icon' => 'fas fa-chart-bar',
             'icon_color' => 'red',
             'active' => ['reportes*'],
             'can' => 'reports.view',
             'modulo' => 'reportes', // ← Validación de módulo
-            'submenu' => [
-                [
-                    'text' => 'Centro de Reportes',
-                    'route' => 'reportes.index',
-                    'icon' => 'fas fa-home',
-                ],
-                [
-                    'text' => 'Trabajos por Usuario',
-                    'route' => 'reportes.trabajos-usuario',
-                    'icon' => 'fas fa-user-check',
-                ],
-                [
-                    'text' => 'Por Dependencia',
-                    'route' => 'reportes.solicitudes-dependencia',
-                    'icon' => 'fas fa-building',
-                ],
-                [
-                    'text' => 'Ranking Dependencias',
-                    'route' => 'reportes.ranking-dependencias',
-                    'icon' => 'fas fa-trophy',
-                    'icon_color' => 'yellow',
-                ],
-                [
-                    'text' => 'Ranking Usuarios',
-                    'route' => 'reportes.ranking-usuarios',
-                    'icon' => 'fas fa-medal',
-                    'icon_color' => 'orange',
-                ],
-                [
-                    'text' => 'Por Horario',
-                    'route' => 'reportes.servicios-horario',
-                    'icon' => 'fas fa-clock',
-                ],
-                [
-                    'text' => 'Trabajos Asignados',
-                    'route' => 'reportes.trabajos-asignados',
-                    'icon' => 'fas fa-tasks',
-                ],
-                [
-                    'text' => 'Totales Mensuales',
-                    'route' => 'reportes.totales-mensuales',
-                    'icon' => 'fas fa-chart-line',
-                ],
-                [
-                    'text' => 'Totales Anuales',
-                    'route' => 'reportes.totales-anuales',
-                    'icon' => 'fas fa-chart-area',
-                ],
-            ],
+        ],
+
+        // Configuración
+        [
+            'text' => 'Configuración',
+            'route' => 'configuracion.index',
+            'icon' => 'fas fa-fw fa-cog',
+            'icon_color' => 'gray',
+            'active' => ['configuracion*'],
+            'can' => 'config.manage',
         ],
 
         // Módulos Futuros (Inventario, Préstamos, Uso del Laboratorio)
         ['header' => 'LABORATORIO'],
+
+        // Menú de Tickets con validación de módulo
+        [
+            'text' => 'Gestión de Tickets',
+            'icon' => 'fas fa-fw fa-ticket-alt',
+            'icon_color' => 'yellow',
+            'active' => ['tickets*'],
+            'modulo' => 'tickets', // ← Validación de módulo
+            'submenu' => [
+                [
+                    'text' => 'Mis Tickets',
+                    'route' => 'tickets.mis-tickets',
+                    'icon' => 'fas fa-fw fa-user-clock',
+                    'can' => 'tickets.view',
+                ],
+                [
+                    'text' => 'Todos los Tickets',
+                    'route' => 'tickets.index',
+                    'icon' => 'fas fa-fw fa-list-alt',
+                    'can' => 'tickets.view-all',
+                ],
+                [
+                    'text' => 'Nuevo Ticket',
+                    'route' => 'tickets.create',
+                    'icon' => 'fas fa-fw fa-plus-circle',
+                    'icon_color' => 'green',
+                    'can' => 'tickets.create',
+                ],
+            ],
+        ],
 
         [
             'text' => 'Inventario',

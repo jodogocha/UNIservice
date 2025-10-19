@@ -23,9 +23,9 @@ class UnidadAcademicaController extends Controller
         // Búsqueda por nombre o código
         if ($request->filled('buscar')) {
             $buscar = $request->buscar;
-            $query->where(function($q) use ($buscar) {
+            $query->where(function ($q) use ($buscar) {
                 $q->where('nombre', 'LIKE', "%{$buscar}%")
-                  ->orWhere('codigo', 'LIKE', "%{$buscar}%");
+                    ->orWhere('codigo', 'LIKE', "%{$buscar}%");
             });
         }
 
@@ -73,7 +73,7 @@ class UnidadAcademicaController extends Controller
             // Manejar la subida del logo
             if ($request->hasFile('logo')) {
                 $logoPath = $request->file('logo')->store('logos', 'public');
-                $data['logo'] = 'storage/' . $logoPath;
+                $data['logo'] = 'storage/'.$logoPath;
             }
 
             UnidadAcademica::create($data);
@@ -84,7 +84,7 @@ class UnidadAcademicaController extends Controller
         } catch (\Exception $e) {
             return back()
                 ->withInput()
-                ->with('error', 'Error al crear la unidad académica: ' . $e->getMessage());
+                ->with('error', 'Error al crear la unidad académica: '.$e->getMessage());
         }
     }
 
@@ -93,7 +93,7 @@ class UnidadAcademicaController extends Controller
      */
     public function show(UnidadAcademica $unidadesAcademica)
     {
-        $unidadesAcademica->load(['dependencias' => function($query) {
+        $unidadesAcademica->load(['dependencias' => function ($query) {
             $query->withCount('users');
         }]);
 
@@ -114,8 +114,8 @@ class UnidadAcademicaController extends Controller
     public function update(Request $request, UnidadAcademica $unidadesAcademica)
     {
         $validated = $request->validate([
-            'nombre' => 'required|string|max:255|unique:unidades_academicas,nombre,' . $unidadesAcademica->id,
-            'codigo' => 'required|string|max:50|unique:unidades_academicas,codigo,' . $unidadesAcademica->id,
+            'nombre' => 'required|string|max:255|unique:unidades_academicas,nombre,'.$unidadesAcademica->id,
+            'codigo' => 'required|string|max:50|unique:unidades_academicas,codigo,'.$unidadesAcademica->id,
             'descripcion' => 'nullable|string',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ], [
@@ -143,9 +143,9 @@ class UnidadAcademicaController extends Controller
                     $oldLogoPath = str_replace('storage/', '', $unidadesAcademica->logo);
                     Storage::disk('public')->delete($oldLogoPath);
                 }
-                
+
                 $logoPath = $request->file('logo')->store('logos', 'public');
-                $data['logo'] = 'storage/' . $logoPath;
+                $data['logo'] = 'storage/'.$logoPath;
             }
 
             $unidadesAcademica->update($data);
@@ -156,7 +156,7 @@ class UnidadAcademicaController extends Controller
         } catch (\Exception $e) {
             return back()
                 ->withInput()
-                ->with('error', 'Error al actualizar la unidad académica: ' . $e->getMessage());
+                ->with('error', 'Error al actualizar la unidad académica: '.$e->getMessage());
         }
     }
 
@@ -189,7 +189,7 @@ class UnidadAcademicaController extends Controller
     public function cambiarEstado(UnidadAcademica $unidadesAcademica)
     {
         $unidadesAcademica->update([
-            'activo' => !$unidadesAcademica->activo
+            'activo' => ! $unidadesAcademica->activo,
         ]);
 
         $estado = $unidadesAcademica->activo ? 'activada' : 'desactivada';

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AuditLog;
+use App\Models\Dependencia;
 use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -15,11 +17,11 @@ class TicketController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
-        
+
         $query = Ticket::with(['solicitante', 'asignado', 'dependencia', 'unidadAcademica']);
 
         // Si NO es admin, filtrar por unidad académica del usuario
-        if (!$user->hasRole('admin')) {
+        if (! $user->hasRole('admin')) {
             $query->where('unidad_academica_id', $user->unidad_academica_id);
         }
 
@@ -53,16 +55,16 @@ class TicketController extends Controller
             $buscar = $request->buscar;
             $query->where(function ($q) use ($buscar) {
                 $q->where('codigo', 'LIKE', "%{$buscar}%")
-                  ->orWhere('asunto', 'LIKE', "%{$buscar}%")
-                  ->orWhere('descripcion', 'LIKE', "%{$buscar}%");
+                    ->orWhere('asunto', 'LIKE', "%{$buscar}%")
+                    ->orWhere('descripcion', 'LIKE', "%{$buscar}%");
             });
         }
 
         $tickets = $query->orderBy('created_at', 'desc')->paginate(15)->appends(request()->query());
-        
+
         // Datos para los filtros
         $dependencias = Dependencia::where('activo', true)->orderBy('nombre')->get();
-        $tecnicos = User::whereHas('roles', function($q) {
+        $tecnicos = User::whereHas('roles', function ($q) {
             $q->whereIn('slug', ['admin', 'encargado-lab']);
         })->where('activo', true)->get();
 
@@ -77,7 +79,8 @@ class TicketController extends Controller
         $tickets = Ticket::with(['dependencia', 'unidadAcademica', 'asignado'])
             ->where('solicitante_id', auth()->id())
             ->orderBy('created_at', 'desc')
-            ->paginate(15);
+            ->paginate(15)
+            ->appends(request()->query());
 
         return view('tickets.mis-tickets', compact('tickets'));
     }
@@ -89,7 +92,7 @@ class TicketController extends Controller
     {
         $tiposServicio = Ticket::tiposServicio();
         $prioridades = Ticket::prioridades();
-        
+
         return view('tickets.create', compact('tiposServicio', 'prioridades'));
     }
 
@@ -135,11 +138,11 @@ class TicketController extends Controller
 
             return redirect()
                 ->route('tickets.show', $ticket)
-                ->with('success', 'Ticket creado exitosamente. Código: ' . $ticket->codigo);
+                ->with('success', 'Ticket creado exitosamente. Código: '.$ticket->codigo);
         } catch (\Exception $e) {
             return back()
                 ->withInput()
-                ->with('error', 'Error al crear el ticket: ' . $e->getMessage());
+                ->with('error', 'Error al crear el ticket: '.$e->getMessage());
         }
     }
 
@@ -149,9 +152,9 @@ class TicketController extends Controller
     public function show(Ticket $ticket)
     {
         $ticket->load(['solicitante', 'dependencia', 'unidadAcademica', 'asignado']);
-        
+
         $user = Auth::user();
-        
+
         // Verificar permisos - Admin ve todos, encargados solo de su unidad, usuarios solo los suyos
         if ($user->hasRole('admin')) {
             // Admin puede ver todos
@@ -166,16 +169,16 @@ class TicketController extends Controller
         }
 
         // Usuarios disponibles para asignar (solo encargados y admin de la misma unidad académica)
-        $usuariosParaAsignar = User::whereHas('roles', function($query) {
+        $usuariosParaAsignar = User::whereHas('roles', function ($query) {
             $query->whereIn('slug', ['admin', 'encargado-lab', 'tecnico']);
         })
-        ->where('activo', true)
-        ->where(function($query) use ($user, $ticket) {
-            if (!$user->hasRole('admin')) {
-                $query->where('unidad_academica_id', $ticket->unidad_academica_id);
-            }
-        })
-        ->get();
+            ->where('activo', true)
+            ->where(function ($query) use ($user, $ticket) {
+                if (! $user->hasRole('admin')) {
+                    $query->where('unidad_academica_id', $ticket->unidad_academica_id);
+                }
+            })
+            ->get();
 
         return view('tickets.show', compact('ticket', 'usuariosParaAsignar'));
     }
@@ -186,27 +189,27 @@ class TicketController extends Controller
     public function edit(Ticket $ticket)
     {
         $user = Auth::user();
-        
+
         // Verificar permisos de unidad académica
-        if (!$user->hasRole('admin') && $ticket->unidad_academica_id !== $user->unidad_academica_id) {
+        if (! $user->hasRole('admin') && $ticket->unidad_academica_id !== $user->unidad_academica_id) {
             abort(403, 'No tienes permiso para editar tickets de otras unidades académicas.');
         }
-        
+
         $tiposServicio = Ticket::tiposServicio();
         $prioridades = Ticket::prioridades();
         $estados = Ticket::estados();
-        
+
         // Usuarios disponibles para asignar (solo de la misma unidad académica)
-        $usuariosParaAsignar = User::whereHas('roles', function($query) {
+        $usuariosParaAsignar = User::whereHas('roles', function ($query) {
             $query->whereIn('slug', ['admin', 'encargado-lab', 'tecnico']);
         })
-        ->where('activo', true)
-        ->where(function($query) use ($user, $ticket) {
-            if (!$user->hasRole('admin')) {
-                $query->where('unidad_academica_id', $ticket->unidad_academica_id);
-            }
-        })
-        ->get();
+            ->where('activo', true)
+            ->where(function ($query) use ($user, $ticket) {
+                if (! $user->hasRole('admin')) {
+                    $query->where('unidad_academica_id', $ticket->unidad_academica_id);
+                }
+            })
+            ->get();
 
         return view('tickets.edit', compact('ticket', 'tiposServicio', 'prioridades', 'estados', 'usuariosParaAsignar'));
     }
@@ -241,13 +244,13 @@ class TicketController extends Controller
             ];
 
             // Si se asigna a alguien por primera vez
-            if (!empty($validated['asignado_a']) && empty($ticket->asignado_a)) {
+            if (! empty($validated['asignado_a']) && empty($ticket->asignado_a)) {
                 $dataToUpdate['asignado_a'] = $validated['asignado_a'];
                 $dataToUpdate['fecha_asignacion'] = now();
                 if ($ticket->estado === 'pendiente') {
                     $dataToUpdate['estado'] = 'en_proceso';
                 }
-            } elseif (!empty($validated['asignado_a'])) {
+            } elseif (! empty($validated['asignado_a'])) {
                 $dataToUpdate['asignado_a'] = $validated['asignado_a'];
             }
 
@@ -268,7 +271,7 @@ class TicketController extends Controller
         } catch (\Exception $e) {
             return back()
                 ->withInput()
-                ->with('error', 'Error al actualizar el ticket: ' . $e->getMessage());
+                ->with('error', 'Error al actualizar el ticket: '.$e->getMessage());
         }
     }
 
@@ -278,19 +281,19 @@ class TicketController extends Controller
     public function asignar(Request $request, Ticket $ticket)
     {
         $user = Auth::user();
-        
+
         // Verificar que el ticket sea de su unidad académica (excepto admin)
-        if (!$user->hasRole('admin') && $ticket->unidad_academica_id !== $user->unidad_academica_id) {
+        if (! $user->hasRole('admin') && $ticket->unidad_academica_id !== $user->unidad_academica_id) {
             return back()->with('error', 'No puedes asignar tickets de otras unidades académicas.');
         }
-        
+
         $validated = $request->validate([
             'asignado_a' => 'required|exists:users,id',
         ]);
-        
+
         // Verificar que el usuario asignado sea de la misma unidad académica
         $usuarioAsignado = User::find($validated['asignado_a']);
-        if (!$user->hasRole('admin') && $usuarioAsignado->unidad_academica_id !== $ticket->unidad_academica_id) {
+        if (! $user->hasRole('admin') && $usuarioAsignado->unidad_academica_id !== $ticket->unidad_academica_id) {
             return back()->with('error', 'Solo puedes asignar tickets a usuarios de la misma unidad académica.');
         }
 
@@ -360,7 +363,7 @@ class TicketController extends Controller
         $user = Auth::user();
 
         // Solo el solicitante o admin pueden cancelar
-        if ($ticket->solicitante_id !== $user->id && !$user->hasPermission('tickets.delete')) {
+        if ($ticket->solicitante_id !== $user->id && ! $user->hasPermission('tickets.delete')) {
             return back()->with('error', 'No tienes permiso para cancelar este ticket.');
         }
 
@@ -372,7 +375,7 @@ class TicketController extends Controller
 
         $ticket->update([
             'estado' => 'cancelado',
-            'observaciones' => 'Cancelado: ' . $validated['motivo'],
+            'observaciones' => 'Cancelado: '.$validated['motivo'],
         ]);
 
         return back()->with('success', 'Ticket cancelado.');
@@ -388,10 +391,10 @@ class TicketController extends Controller
         ]);
 
         $observacionAnterior = $ticket->observaciones ?? '';
-        $nuevaObservacion = '[' . now()->format('d/m/Y H:i') . ' - ' . Auth::user()->nombre_completo . '] ' . $validated['observacion'];
-        
+        $nuevaObservacion = '['.now()->format('d/m/Y H:i').' - '.Auth::user()->nombre_completo.'] '.$validated['observacion'];
+
         $ticket->update([
-            'observaciones' => $observacionAnterior . "\n" . $nuevaObservacion,
+            'observaciones' => $observacionAnterior."\n".$nuevaObservacion,
         ]);
 
         return back()->with('success', 'Observación agregada correctamente.');
@@ -409,7 +412,7 @@ class TicketController extends Controller
                 ->route('tickets.index')
                 ->with('success', 'Ticket eliminado exitosamente');
         } catch (\Exception $e) {
-            return back()->with('error', 'Error al eliminar el ticket: ' . $e->getMessage());
+            return back()->with('error', 'Error al eliminar el ticket: '.$e->getMessage());
         }
     }
 }

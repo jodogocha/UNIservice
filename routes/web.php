@@ -9,6 +9,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UnidadAcademicaController;
 use App\Http\Controllers\DependenciaController;
 use App\Http\Controllers\AuditLogController;
+use App\Http\Controllers\ReportController;
 
 // Ruta raíz - redirige al login si no está autenticado
 Route::get('/', function () {
